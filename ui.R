@@ -5,8 +5,9 @@ ui <- bootstrapPage(
         tabsetPanel(
           
           tabPanel("Data input", 
+                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data). Rows that contain one or more NAs will be excluded from the PCA. Columns that contain a mixture of numbers and text will not be included in the PCA. Have a look at the iris.csv file included with this app to see what a clean CSV file looks like."),
                    
-                   fileInput('file1', 'Choose a CSV file to upload (try the iris.csv file included with this app)',
+                   fileInput('file1', 'Choose a CSV file to upload:',
                              accept = c(
                                'text/csv',
                                'text/comma-separated-values',
@@ -96,7 +97,7 @@ ui <- bootstrapPage(
 
       
           tabPanel("PC Plots",
-                   p("The scree plot shows the variances of each PC, and the variance explained by each PC (in %) "),
+                   p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
                    plotOutput("plot2"),
                    tags$hr(),
                    p("Select the grouping variable (only columns of character and integer type are shown here)"),

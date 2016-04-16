@@ -18,7 +18,7 @@ server <- function(input, output) {
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
-                               sep = input$sep, quote = input$quote)
+                               sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
     return(the_data)
   })
   
@@ -84,7 +84,7 @@ server <- function(input, output) {
   
 output$bartlett <- renderPrint({
   the_data <- the_data_fn()
-  the_data_num <- the_data[,sapply(the_data,is.numeric)]
+  the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
   
   cortest.bartlett(cor(the_data_num), n = nrow(the_data_num))
 })  
@@ -145,7 +145,7 @@ output$kmo <- renderPrint({
     return(ans) 
     
   }    # end of kmo() 
-  kmo(the_data_num)
+  kmo(na.omit(the_data_num))
   
 }) 
   
@@ -159,7 +159,7 @@ output$kmo <- renderPrint({
     # Get the data set with the appropriate name
     
     # we only want to show numeric cols
-    the_data_num <- the_data[,sapply(the_data,is.numeric)]
+    the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
     
     colnames <- names(the_data_num)
     
@@ -175,7 +175,7 @@ output$kmo <- renderPrint({
 
               
   # only show integer or character cols here
-    the_data_group_cols <- the_data[,!sapply(the_data,is.numeric), drop = FALSE]
+    the_data_group_cols <- na.omit(the_data[,!sapply(the_data,is.numeric), drop = FALSE])
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
                 label = "Grouping variable:",
@@ -187,8 +187,8 @@ output$kmo <- renderPrint({
 pca_objects <- reactive({
   # Keep the selected columns
   columns <-    input$columns
-  the_data <- the_data_fn()
-  the_data_subset <- the_data[, columns, drop = FALSE]
+  the_data <- na.omit(the_data_fn())
+  the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
   
   # from http://rpubs.com/sinhrks/plot_pca
   pca_output <- prcomp(na.omit(the_data_subset), 
