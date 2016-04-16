@@ -5,7 +5,7 @@ ui <- bootstrapPage(
         tabsetPanel(
           
           tabPanel("Data input", 
-                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data). Rows that contain one or more NAs will be excluded from the PCA. Columns that contain a mixture of numbers and text will not be included in the PCA. Have a look at the iris.csv file included with this app to see what a clean CSV file looks like."),
+                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data). Rows that contain one or more NAs will be excluded from the PCA. Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results. Have a look at the iris.csv file included with this app to see what a clean CSV file looks like."),
                    
                    fileInput('file1', 'Choose a CSV file to upload:',
                              accept = c(
@@ -98,7 +98,7 @@ ui <- bootstrapPage(
       
           tabPanel("PC Plots",
                    p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
-                   plotOutput("plot2"),
+                   plotOutput("plot2", height = "300px"),
                    tags$hr(),
                    p("Select the grouping variable (only columns of character and integer type are shown here)"),
                    uiOutput("the_grouping_variable"),
@@ -108,7 +108,7 @@ ui <- bootstrapPage(
                    uiOutput("the_pcs_to_plot_y"),
                    tags$hr(),
                    p("Click and drag on the plot to select points, and inspect the table of selected points below"),
-                   plotOutput("plot1",  brush = "plot_brush", click = "plot_click", height = "400px"),
+                   plotOutput("plot1",  brush = "plot_brush", click = "plot_click", height = "500px"),
                    tags$hr(),
                    p("Details of the brushed points"),
                    verbatimTextOutput("brush_info"),
