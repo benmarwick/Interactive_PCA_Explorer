@@ -1,11 +1,12 @@
 ui <- bootstrapPage(
   mainPanel(
+    titlePanel("Interactive PCA Explorer"),
         
         tabsetPanel(
           
           tabPanel("Data input", 
                    
-                   fileInput('file1', 'Choose a CSV file to upload',
+                   fileInput('file1', 'Choose a CSV file to upload (try the iris.csv file included with this app)',
                              accept = c(
                                'text/csv',
                                'text/comma-separated-values',
@@ -32,21 +33,21 @@ ui <- bootstrapPage(
                                 c(None='',
                                   'Double Quote'='"',
                                   'Single Quote'="'"),
-                                '"'),
+                                '"')
+                 ), # end file  tab
+          
+          tabPanel("Inspect the data",
                    
+                   p("The tableplot below may be useful to explore the relationships between the variables, to discover strange data patterns, and to check the occurrence and selectivity of missing values."),
+                   plotOutput("tableplot"),
                    tags$hr(),
-                   
                    p("Here is a summary of the data"),
                    tableOutput('summary'),
                    tags$hr(),
                    p("Here is the raw data from the CSV file"),
                    DT::dataTableOutput('contents')
-                   
-                   
-                   
-                
-                   
-                   ), # end file  tab
+          ), # end  tab
+          
           
           tabPanel("Correlation Plots",
                    uiOutput("choose_columns_biplot"),
@@ -75,7 +76,7 @@ ui <- bootstrapPage(
           
           tabPanel("Compute PCA",
                    
-                   p("Choose the columns of your data to include in the PCA. Only columns containing numeric data are shown here because PCA doesn't work with non-numeric data."),
+                   p("Choose the columns of your data to include in the PCA. Only columns containing numeric data are shown here because PCA doesn't work with non-numeric data. The PCA is automatically re-computed each time you change your selection. Observations (ie. rows) are removed if they contain any missing values."),
                    uiOutput("choose_columns_pca"),
                    tags$hr(),
                    p("Select options for the PCA computation (we are using the prcomp function here)"),
@@ -95,7 +96,7 @@ ui <- bootstrapPage(
 
       
           tabPanel("PC Plots",
-                   p("The scree plot shows the variences of each PC, and the varience explained by each PC (in %) "),
+                   p("The scree plot shows the variances of each PC, and the variance explained by each PC (in %) "),
                    plotOutput("plot2"),
                    tags$hr(),
                    p("Select the grouping variable (only columns of character and integer type are shown here)"),
@@ -106,10 +107,12 @@ ui <- bootstrapPage(
                    uiOutput("the_pcs_to_plot_y"),
                    tags$hr(),
                    p("Click and drag on the plot to select points, and inspect the table of selected points below"),
-                   plotOutput("plot1",  brush = "plot_brush", height = "400px"),
+                   plotOutput("plot1",  brush = "plot_brush", click = "plot_click", height = "400px"),
                    tags$hr(),
-                   p("Details of the selected points"),
-                   verbatimTextOutput("info")
+                   p("Details of the brushed points"),
+                   verbatimTextOutput("brush_info"),
+                   p("Details of the clicked points"),
+                   verbatimTextOutput("click_info")
           ), # end  tab 
           
           tabPanel("PCA output",

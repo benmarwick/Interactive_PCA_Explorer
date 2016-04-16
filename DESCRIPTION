@@ -1,5 +1,5 @@
 Title: Interactive PCA
 Author: Ben Marwick
 License: GPL-3
-DisplayMode: Showcase
+# DisplayMode: Showcase
 Type: Shiny

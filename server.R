@@ -5,6 +5,7 @@ library("GGally")
 library("psych")
 library("Hmisc")
 library("MASS")
+library("tabplot")
 
 server <- function(input, output) {
   
@@ -19,6 +20,13 @@ server <- function(input, output) {
     the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
                                sep = input$sep, quote = input$quote)
     return(the_data)
+  })
+  
+  # tableplot
+  output$tableplot <- renderPlot({
+    the_data <- the_data_fn()
+    tabplot::tableplot(the_data)
+    
   })
   
   # display a table of the CSV contents
@@ -183,7 +191,7 @@ pca_objects <- reactive({
   the_data_subset <- the_data[, columns, drop = FALSE]
   
   # from http://rpubs.com/sinhrks/plot_pca
-  pca_output <- prcomp(the_data_subset, 
+  pca_output <- prcomp(na.omit(the_data_subset), 
                        center = (input$center == 'Yes'), 
                        scale. = (input$scale. == 'Yes'))
   # data.frame of PCs
@@ -228,11 +236,12 @@ output$the_pcs_to_plot_y <- renderUI({
                          cumvar =  cumvar)
     ggplot(eig_df, aes(PCs, eig)) +
       geom_bar(stat = "identity", fill = "white", colour = "black") +
-      geom_text(label = cumvar, size = 5,
+      geom_text(label = cumvar, size = 7,
                 vjust=-0.4) +
       theme_bw(base_size = 14) +
       xlab("PC") +
-      ylab("Variances")
+      ylab("Variances") +
+      ylim(0,(max(eig_df$eig) * 1.1))
   })
   
   
@@ -243,14 +252,17 @@ output$the_pcs_to_plot_y <- renderUI({
     
     var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
     var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
-
+    labels <- rownames(pca_output$x)
 
     pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
                                           input$the_pcs_to_plot_y, 
                                           fill = input$the_grouping_variable, 
-                                          colour = input$the_grouping_variable)) +
+                                          colour = input$the_grouping_variable
+                                          )) +
       stat_ellipse(geom = "polygon", alpha = 0.1) +
-      geom_text(aes(label = rownames(pca_objects()$the_data)), size = 5) +
+    
+      geom_text(aes(label = labels),  size = 5) +
+     
       theme_bw(base_size = 14) +
       coord_equal() +
       xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
@@ -261,9 +273,17 @@ output$the_pcs_to_plot_y <- renderUI({
     
   })
   
-  output$info <- renderPrint({
+  output$brush_info <- renderPrint({
     # the brushing function
     brushedPoints(pca_objects()$pcs_df, input$plot_brush)
+  })
+  
+  output$click_info <- renderPrint({
+    # the clicking on points function
+    res <- nearPoints(pca_objects()$pcs_df, input$plot_click, threshold = 10)
+    if (nrow(res) == 0)
+      return()
+    res
   })
   
   output$pca_details <- renderPrint({
