@@ -6,6 +6,18 @@ You can chose which columns to include in the PCA, and which column to use as a 
 
 The biplot of PCs is interactive, so you can click on points or select points and inspect the details of those points in a table. 
 
+## How to run or install
+
+The app is online at <https://benmarwick.shinyapps.io/interactive_pca_explorer/>
+
+YOu can run it on your computer like so:
+
+```
+library(shiny)
+runGitHub("interactive_pca_explorer", "benmarwick")
+
+```
+
 ## Screenshots
 
 Here's what it looks like. Here we have input a CSV file that contain the [iris data](https://en.wikipedia.org/wiki/Iris_flower_data_set) (included with this app).
