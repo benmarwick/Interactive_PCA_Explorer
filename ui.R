@@ -5,7 +5,7 @@ ui <- bootstrapPage(
         tabsetPanel(
           
           tabPanel("Data input", 
-                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data). Rows that contain one or more NAs will be excluded from the PCA. Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results. Have a look at the iris.csv file included with this app to see what a clean CSV file looks like."),
+                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data). Rows that contain one or more NAs will be excluded from the PCA. Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results. Have a look at the ", a("iris.csv", href = "https://raw.githubusercontent.com/benmarwick/Interactive_PCA_Explorer/master/iris.csv"),  " file included with this app to see what a clean CSV file looks like."),
                    
                    fileInput('file1', 'Choose a CSV file to upload:',
                              accept = c(
