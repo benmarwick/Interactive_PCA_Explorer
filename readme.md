@@ -8,15 +8,30 @@ The biplot of PCs is interactive, so you can click on points or select points an
 
 ## How to run or install
 
-The app is online at <https://benmarwick.shinyapps.io/interactive_pca_explorer/>
+There are three ways to run/install this app.
 
-YOu can run it on your computer like so:
+First, you can access the app online at <https://benmarwick.shinyapps.io/interactive_pca_explorer/>. You can upload your CSV there and use all the functions. 
+
+Second, you can run it on your computer like so:
 
 ```
 library(shiny)
 runGitHub("interactive_pca_explorer", "benmarwick")
 
 ```
+
+Third, you can clone this repo to have the code on your computer, and run the app from there, like so:
+
+```
+# First clone the repository with git. If you have cloned it into
+# ~/interactive_pca_explorer, first change your working directory to ~/interactive_pca_explorer, then use runApp() to start the app.
+setwd("~/interactive_pca_explorer") # change to match where you downloaded this repo to
+runApp() # runs the app 
+```
+
+## How to use
+
+Start on the first (left-most) tab to upload your CSV file, then click on each tab, in order from left to right, to see the results.
 
 ## Screenshots
 
@@ -48,3 +63,8 @@ Here are the classic PCA plots. First is the scree plot summarizing how importan
 Finally we have some of the raw output from the PCA.
 
 ![](figures/007_pca_output.png)
+
+
+## Feedback, contributing, etc.
+
+Please [open an issue](https://github.com/benmarwick/wordcountaddin/issues/new) if you find something that doesn't work as expected. Note that this project is released with a [Guide to Contributing](CONTRIBUTING.md) and a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
