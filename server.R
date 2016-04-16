@@ -292,4 +292,11 @@ output$the_pcs_to_plot_y <- renderUI({
     summary(pca_objects()$pca_output)
     
   })
+  
+  output$Colophon <- renderPrint({
+    
+    
+  })
+  
+  
 }

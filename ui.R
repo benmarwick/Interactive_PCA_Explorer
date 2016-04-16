@@ -119,6 +119,13 @@ ui <- bootstrapPage(
           tabPanel("PCA output",
                    verbatimTextOutput("pca_details")
                    
+          ), # end  tab 
+          
+          tabPanel("Colophon",
+                   p("The code for this Shiny app is online at ", a("https://github.com/benmarwick/Interactive_PCA_Explorer", href = "https://github.com/benmarwick/Interactive_PCA_Explorer"), ". Please post any feedback, question, etc. as an ", a("issue on github", href = "https://github.com/benmarwick/Interactive_PCA_Explorer/issues/new"), "."),
+                   p("The text is licensed ", a("CC-BY", href = "http://creativecommons.org/licenses/by/4.0/"), " and the code ", a(href = "https://opensource.org/licenses/MIT", "MIT"), ".")
+                   
+                   
           ) # end  tab 
           
           
