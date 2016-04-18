@@ -13,6 +13,8 @@ server <- function(input, output) {
   # setting this option. Here we'll raise limit to 9MB.
   options(shiny.maxRequestSize = 9*1024^2)
   
+
+  
   # read in the CSV
   the_data_fn <- reactive({
     inFile <- input$file1
@@ -21,9 +23,11 @@ server <- function(input, output) {
                                sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
     return(the_data)
   })
+
   
   # tableplot
   output$tableplot <- renderPlot({
+    if(is.null(the_data_fn())) return()
     the_data <- the_data_fn()
     tabplot::tableplot(the_data)
     
@@ -51,7 +55,7 @@ server <- function(input, output) {
     # Create the checkboxes and select them all by default
     checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix", 
                        choices  = colnames,
-                       selected = colnames)
+                       selected = colnames[1:5])
   })
   
   # corr plot
@@ -68,6 +72,10 @@ server <- function(input, output) {
     the_data <- the_data_fn()
     # we only want to show numeric cols
     the_data_num <- the_data[,sapply(the_data,is.numeric)]
+    # exclude cols with zero variance
+    the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+    
+    
       res <- Hmisc::rcorr(as.matrix(the_data_num))
       cormat <- res$r
       pmat <- res$P
@@ -85,6 +93,9 @@ server <- function(input, output) {
 output$bartlett <- renderPrint({
   the_data <- the_data_fn()
   the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
+  # exclude cols with zero variance
+  the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+  
   
   cortest.bartlett(cor(the_data_num), n = nrow(the_data_num))
 })  
@@ -92,6 +103,9 @@ output$bartlett <- renderPrint({
 output$kmo <- renderPrint({
   the_data <- the_data_fn()
   the_data_num <- the_data[,sapply(the_data,is.numeric)]
+  # exclude cols with zero variance
+  the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+  
  # R <- cor(the_data_num)
  # KMO(R)
   
@@ -160,6 +174,9 @@ output$kmo <- renderPrint({
     
     # we only want to show numeric cols
     the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
+    # exclude cols with zero variance
+    the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+    
     
     colnames <- names(the_data_num)
     
@@ -174,8 +191,11 @@ output$kmo <- renderPrint({
     the_data <- the_data_fn()
 
               
-  # only show integer or character cols here
-    the_data_group_cols <- na.omit(the_data[,!sapply(the_data,is.numeric), drop = FALSE])
+  # for grouping we want to see only cols where the number of unique values are less than 
+  # 10% the number of observations
+    grouping_cols <- sapply(seq(1, ncol(the_data)), function(i) length(unique(the_data[,i])) < nrow(the_data)/10 )
+    
+    the_data_group_cols <- the_data[, grouping_cols, drop = FALSE]
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
                 label = "Grouping variable:",
@@ -234,9 +254,9 @@ output$the_pcs_to_plot_y <- renderUI({
     eig_df <- data.frame(eig = eig,
                          PCs = colnames(pca_output$x),
                          cumvar =  cumvar)
-    ggplot(eig_df, aes(PCs, eig)) +
+    ggplot(eig_df, aes(reorder(PCs, -eig), eig)) +
       geom_bar(stat = "identity", fill = "white", colour = "black") +
-      geom_text(label = cumvar, size = 7,
+      geom_text(label = cumvar, size = 4,
                 vjust=-0.4) +
       theme_bw(base_size = 14) +
       xlab("PC") +
@@ -253,17 +273,22 @@ output$the_pcs_to_plot_y <- renderUI({
     var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
     var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
     labels <- rownames(pca_output$x)
-
+    
+    grouping <- input$the_grouping_variable
+    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
+ 
     pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
                                           input$the_pcs_to_plot_y, 
-                                          fill = input$the_grouping_variable, 
-                                          colour = input$the_grouping_variable
+                                          fill = 'fill_', 
+                                          colour = 'fill_'
                                           )) +
       stat_ellipse(geom = "polygon", alpha = 0.1) +
     
       geom_text(aes(label = labels),  size = 5) +
-     
       theme_bw(base_size = 14) +
+      scale_colour_discrete(guide = FALSE) +
+      guides(fill = guide_legend(title = "groups")) +
+      theme(legend.position="top") +
       coord_equal() +
       xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
       ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
@@ -273,12 +298,12 @@ output$the_pcs_to_plot_y <- renderUI({
     
   })
   
-  output$brush_info <- renderPrint({
+  output$brush_info <- renderTable({
     # the brushing function
     brushedPoints(pca_objects()$pcs_df, input$plot_brush)
   })
   
-  output$click_info <- renderPrint({
+  output$click_info <- renderTable({
     # the clicking on points function
     res <- nearPoints(pca_objects()$pcs_df, input$plot_click, threshold = 10)
     if (nrow(res) == 0)
