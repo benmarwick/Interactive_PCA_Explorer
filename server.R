@@ -9,12 +9,6 @@ library("tabplot")
 
 server <- function(input, output) {
   
-  # By default, the file size limit is 5MB. It can be changed by
-  # setting this option. Here we'll raise limit to 9MB.
-  options(shiny.maxRequestSize = 9*1024^2)
-  
-
-  
   # read in the CSV
   the_data_fn <- reactive({
     inFile <- input$file1
@@ -95,8 +89,7 @@ output$bartlett <- renderPrint({
   the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
   # exclude cols with zero variance
   the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-  
-  
+
   cortest.bartlett(cor(the_data_num), n = nrow(the_data_num))
 })  
 
@@ -303,14 +296,7 @@ output$the_pcs_to_plot_y <- renderUI({
     brushedPoints(pca_objects()$pcs_df, input$plot_brush)
   })
   
-  output$click_info <- renderTable({
-    # the clicking on points function
-    res <- nearPoints(pca_objects()$pcs_df, input$plot_click, threshold = 10)
-    if (nrow(res) == 0)
-      return()
-    res
-  })
-  
+
   # for zooming
   output$z_plot1 <- renderPlot({
     pcs_df <- pca_objects()$pcs_df
