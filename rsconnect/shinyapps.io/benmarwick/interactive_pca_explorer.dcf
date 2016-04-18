@@ -2,8 +2,8 @@ name: interactive_pca_explorer
 account: benmarwick
 server: shinyapps.io
 appId: 94888
-bundleId: 422901
+bundleId: 422995
 url: https://benmarwick.shinyapps.io/interactive_pca_explorer/
-when: 1460949590.09044
+when: 1460958891.92612
 asMultiple: FALSE
 asStatic: FALSE

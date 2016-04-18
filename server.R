@@ -311,6 +311,93 @@ output$the_pcs_to_plot_y <- renderUI({
     res
   })
   
+  # for zooming
+  output$z_plot1 <- renderPlot({
+    pcs_df <- pca_objects()$pcs_df
+    pca_output <-  pca_objects()$pca_output
+    
+    var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
+    var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
+    labels <- rownames(pca_output$x)
+    
+    grouping <- input$the_grouping_variable
+    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
+    
+    pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
+                                          input$the_pcs_to_plot_y, 
+                                          fill = 'fill_', 
+                                          colour = 'fill_'
+    )) +
+      stat_ellipse(geom = "polygon", alpha = 0.1) +
+      
+      geom_text(aes(label = labels),  size = 5) +
+      theme_bw(base_size = 14) +
+      scale_colour_discrete(guide = FALSE) +
+      guides(fill = guide_legend(title = "groups")) +
+      theme(legend.position="top") +
+      coord_equal() +
+      xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+      ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
+    # the plot
+    pc_plot
+    
+    
+  })
+  
+  # zoom ranges
+  zooming <- reactiveValues(x = NULL, y = NULL)
+  
+  observe({
+    brush <- input$z_plot1Brush
+    if (!is.null(brush)) {
+      zooming$x <- c(brush$xmin, brush$xmax)
+      zooming$y <- c(brush$ymin, brush$ymax)
+    }
+    else {
+      zooming$x <- NULL
+      zooming$y <- NULL
+    }
+  })
+  
+
+  # for zooming
+  output$z_plot2 <- renderPlot({
+    pcs_df <- pca_objects()$pcs_df
+    pca_output <-  pca_objects()$pca_output
+    
+    var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
+    var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
+    labels <- rownames(pca_output$x)
+    
+    grouping <- input$the_grouping_variable
+    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
+    
+    pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
+                                          input$the_pcs_to_plot_y, 
+                                          fill = 'fill_', 
+                                          colour = 'fill_'
+    )) +
+      stat_ellipse(geom = "polygon", alpha = 0.1) +
+      
+      geom_text(aes(label = labels),  size = 5) +
+      theme_bw(base_size = 14) +
+      scale_colour_discrete(guide = FALSE) +
+      guides(fill = guide_legend(title = "groups")) +
+      theme(legend.position="top") +
+      xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+      ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) +
+      coord_cartesian(xlim = zooming$x, ylim = zooming$y) 
+    # the plot
+    pc_plot
+    
+    
+  })
+  
+  output$brush_info_after_zoom <- renderTable({
+    # the brushing function
+    brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)
+  })
+  
   output$pca_details <- renderPrint({
     # 
     print(pca_objects()$pca_output$rotation)
