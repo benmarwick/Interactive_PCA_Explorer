@@ -192,7 +192,7 @@ output$kmo <- renderPrint({
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
                 label = "Grouping variable:",
-                choices=names(the_data_group_cols))
+                choices=c("None", names(the_data_group_cols)))
 
   })
   
@@ -259,18 +259,37 @@ output$the_pcs_to_plot_y <- renderUI({
   
   
   # PC plot
-  output$plot1 <- renderPlot({
+ pca_biplot <- reactive({
     pcs_df <- pca_objects()$pcs_df
     pca_output <-  pca_objects()$pca_output
     
     var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
     var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
     labels <- rownames(pca_output$x)
-    
     grouping <- input$the_grouping_variable
-    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
- 
-    pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
+
+    if(grouping == 'None'){
+      # plot without grouping variable
+      pc_plot_no_groups  <- ggplot(pcs_df, 
+                                   aes_string(input$the_pcs_to_plot_x, 
+                                              input$the_pcs_to_plot_y
+                                                  )) +
+        
+        
+        geom_text(aes(label = labels),  size = 5) +
+        theme_bw(base_size = 14) +
+        coord_equal() +
+        xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+        ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
+      # the plot
+      pc_plot_no_groups
+      
+      
+    } else {
+    # plot with grouping variable
+      
+      pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
+    pc_plot_groups  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
                                           input$the_pcs_to_plot_y, 
                                           fill = 'fill_', 
                                           colour = 'fill_'
@@ -286,7 +305,8 @@ output$the_pcs_to_plot_y <- renderUI({
       xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
       ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
     # the plot
-    pc_plot
+    pc_plot_groups
+    }
     
     
   })
@@ -299,35 +319,9 @@ output$the_pcs_to_plot_y <- renderUI({
 
   # for zooming
   output$z_plot1 <- renderPlot({
-    pcs_df <- pca_objects()$pcs_df
-    pca_output <-  pca_objects()$pca_output
     
-    var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
-    var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
-    labels <- rownames(pca_output$x)
-    
-    grouping <- input$the_grouping_variable
-    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
-    
-    pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
-                                          input$the_pcs_to_plot_y, 
-                                          fill = 'fill_', 
-                                          colour = 'fill_'
-    )) +
-      stat_ellipse(geom = "polygon", alpha = 0.1) +
-      
-      geom_text(aes(label = labels),  size = 5) +
-      theme_bw(base_size = 14) +
-      scale_colour_discrete(guide = FALSE) +
-      guides(fill = guide_legend(title = "groups")) +
-      theme(legend.position="top") +
-      coord_equal() +
-      xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-      ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
-    # the plot
-    pc_plot
-    
-    
+    pca_biplot() 
+
   })
   
   # zoom ranges
@@ -348,34 +342,9 @@ output$the_pcs_to_plot_y <- renderUI({
 
   # for zooming
   output$z_plot2 <- renderPlot({
-    pcs_df <- pca_objects()$pcs_df
-    pca_output <-  pca_objects()$pca_output
     
-    var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
-    var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
-    labels <- rownames(pca_output$x)
-    
-    grouping <- input$the_grouping_variable
-    pcs_df$fill_ <- as.character(pcs_df[, grouping, drop = TRUE])
-    
-    pc_plot  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
-                                          input$the_pcs_to_plot_y, 
-                                          fill = 'fill_', 
-                                          colour = 'fill_'
-    )) +
-      stat_ellipse(geom = "polygon", alpha = 0.1) +
-      
-      geom_text(aes(label = labels),  size = 5) +
-      theme_bw(base_size = 14) +
-      scale_colour_discrete(guide = FALSE) +
-      guides(fill = guide_legend(title = "groups")) +
-      theme(legend.position="top") +
-      xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-      ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) +
-      coord_cartesian(xlim = zooming$x, ylim = zooming$y) 
-    # the plot
-    pc_plot
-    
+    pca_biplot() + coord_cartesian(xlim = zooming$x, ylim = zooming$y) 
+
     
   })
   

@@ -1,9 +1,0 @@
-name: interactive_pca_explorer
-account: benmarwick
-server: shinyapps.io
-appId: 95364
-bundleId: 423141
-url: https://benmarwick.shinyapps.io/interactive_pca_explorer/
-when: 1460971392.75566
-asMultiple: FALSE
-asStatic: FALSE
