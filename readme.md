@@ -8,11 +8,9 @@ The biplot of PCs is interactive, so you can click on points or select points an
 
 ## How to run or install
 
-There are three ways to run/install this app.
+There are two ways to run/install this app.
 
-First, you can access the app online at <https://benmarwick.shinyapps.io/interactive_pca_explorer/>. You can upload your CSV there and use all the functions. 
-
-Second, you can run it on your computer like so:
+First, you can run it on your computer like so:
 
 ```
 library(shiny)
@@ -20,7 +18,7 @@ runGitHub("interactive_pca_explorer", "benmarwick")
 
 ```
 
-Third, you can clone this repo to have the code on your computer, and run the app from there, like so:
+Second, you can clone this repo to have the code on your computer, and run the app from there, like so:
 
 ```
 # First clone the repository with git. If you have cloned it into
