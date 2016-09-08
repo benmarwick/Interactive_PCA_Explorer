@@ -1,11 +1,20 @@
 # global items 
-library("ggplot2")
-library("DT")
-library("GGally")
-library("psych")
-library("Hmisc")
-library("MASS")
-library("tabplot")
+
+# check if pkgs are installed already, if not, install automatically:
+# (http://stackoverflow.com/a/4090208/1036500)
+list.of.packages <- c("ggplot2", 
+                      "DT", 
+                      "GGally",
+                      "psych",
+                      "Hmisc",
+                      "MASS",
+                      "tabplot")
+
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+# load all these
+lapply(list.of.packages, require, character.only = TRUE)
 
 server <- function(input, output) {
   
