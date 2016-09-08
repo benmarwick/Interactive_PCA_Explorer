@@ -27,6 +27,8 @@ setwd("~/interactive_pca_explorer") # change to match where you downloaded this 
 runApp() # runs the app 
 ```
 
+This app depends on several R packages (ggplot2, DT, GGally, psych, Hmisc, MASS, tabplot). The app will check to see if you have them installed, and if you don't, it will try to download and install them for you.
+
 ## How to use
 
 Start on the first (left-most) tab to upload your CSV file, then click on each tab, in order from left to right, to see the results.
