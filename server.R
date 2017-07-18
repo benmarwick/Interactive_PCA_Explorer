@@ -23,11 +23,18 @@ server <- function(input, output) {
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
-                               sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
+                               sep = input$sep, quote = input$quote, stringsAsFactors=TRUE)
     return(the_data)
   })
-
   
+  # TODO: determine how to implement this
+  # return the names of the columns that are factors
+  #get_factors <- ({
+  #  the_data <- the_data_fn(fn)
+  #  colnames <- names(the_data)
+  #  return(names(which(sapply(the_data, is.factor))))
+  #})
+
   # tableplot
   output$tableplot <- renderPlot({
     if(is.null(the_data_fn())) return()
@@ -56,7 +63,10 @@ server <- function(input, output) {
     colnames <- names(the_data)
     
     # Create the checkboxes and select them all by default
-    checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix", 
+    checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix",
+                       # TODO: fix this
+                       # use the columns that are factors as choices
+                       #choices = get_factors(),
                        choices  = colnames,
                        selected = colnames[1:5])
   })
