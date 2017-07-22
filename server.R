@@ -48,13 +48,14 @@ server <- function(input, output) {
     
   }
   
+  # removed this functionality for minimal version - restore as time permits
   # tableplot
-  output$tableplot <- renderPlot({
-    if(is.null(the_data_fn())) return()
-    the_data <- the_data_fn()
-    tabplot::tableplot(the_data)
-    
-  })
+  # output$tableplot <- renderPlot({
+  #   if(is.null(the_data_fn())) return()
+  #   the_data <- the_data_fn()
+  #   tabplot::tableplot(the_data)
+  #   
+  # })
   
   # display a table of the CSV contents
   output$contents <-  DT::renderDataTable({
@@ -68,53 +69,54 @@ server <- function(input, output) {
     psych::describe(the_data)
   })
   
-  # Check boxes to choose columns
-  output$choose_columns_biplot <- renderUI({
-    
-    the_data <- the_data_fn()
-    
-    colnames <- names(the_data)
-    
-    # Create the checkboxes and select them all by default
-    checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix",
-                       # TODO: fix this
-                       # use the columns that are factors as choices
-                       #choices = get_factors(),
-                       choices  = colnames,
-                       selected = colnames[1:5])
-  })
-  
-  # corr plot
-  output$corr_plot <- renderPlot({
-    the_data <- the_data_fn()
-    # Keep the selected columns
-    columns_biplot <-    input$columns_biplot
-    the_data_subset_biplot <- the_data[, columns_biplot, drop = FALSE]
-    ggpairs(the_data_subset_biplot)
-     })
-  
-  # corr tables
-  output$corr_tables <- renderTable({
-    the_data <- the_data_fn()
-    # we only want to show numeric cols
-    the_data_num <- the_data[,sapply(the_data,is.numeric)]
-    # exclude cols with zero variance
-    the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-    
-    
-      res <- Hmisc::rcorr(as.matrix(the_data_num))
-      cormat <- res$r
-      pmat <- res$P
-      ut <- upper.tri(cormat)
-     df <- data.frame(
-        row = rownames(cormat)[row(cormat)[ut]],
-        column = rownames(cormat)[col(cormat)[ut]],
-        cor  = (cormat)[ut],
-        p = pmat[ut]
-      )
-     with(df, df[order(-cor), ])
-    
-  })
+  # removed this functionality for minimal version - restore as time permits
+  # # Check boxes to choose columns
+  # output$choose_columns_biplot <- renderUI({
+  #   
+  #   the_data <- the_data_fn()
+  #   
+  #   colnames <- names(the_data)
+  #   
+  #   # Create the checkboxes and select them all by default
+  #   checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix",
+  #                      # TODO: fix this
+  #                      # use the columns that are factors as choices
+  #                      #choices = get_factors(),
+  #                      choices  = colnames,
+  #                      selected = colnames[1:5])
+  # })
+  # 
+  # # corr plot
+  # output$corr_plot <- renderPlot({
+  #   the_data <- the_data_fn()
+  #   # Keep the selected columns
+  #   columns_biplot <-    input$columns_biplot
+  #   the_data_subset_biplot <- the_data[, columns_biplot, drop = FALSE]
+  #   ggpairs(the_data_subset_biplot)
+  #    })
+  # 
+  # # corr tables
+  # output$corr_tables <- renderTable({
+  #   the_data <- the_data_fn()
+  #   # we only want to show numeric cols
+  #   the_data_num <- the_data[,sapply(the_data,is.numeric)]
+  #   # exclude cols with zero variance
+  #   the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+  #   
+  #   
+  #     res <- Hmisc::rcorr(as.matrix(the_data_num))
+  #     cormat <- res$r
+  #     pmat <- res$P
+  #     ut <- upper.tri(cormat)
+  #    df <- data.frame(
+  #       row = rownames(cormat)[row(cormat)[ut]],
+  #       column = rownames(cormat)[col(cormat)[ut]],
+  #       cor  = (cormat)[ut],
+  #       p = pmat[ut]
+  #     )
+  #    with(df, df[order(-cor), ])
+  #   
+  # })
   
 output$bartlett <- renderPrint({
   the_data <- the_data_fn()

@@ -31,7 +31,7 @@ ui <- bootstrapPage(
                                   'Single Quote'="'"),
                                 '"'),
                    
-                   fileInput('file1', 'Choose a CSV file to upload:',
+                   fileInput('count_file', 'Choose a CSV file to upload:',
                              accept = c(
                                'text/csv',
                                'text/comma-separated-values',
@@ -78,28 +78,24 @@ ui <- bootstrapPage(
                  ), # end file  tab
           
           tabPanel("Inspect the data",
-                   
-                   p("The tableplot below (it will take a few seconds to appear) may be useful to explore the relationships between the variables, to discover strange data patterns, and to check the occurrence and selectivity of missing values."),
-                   plotOutput("tableplot"),
-                   tags$hr(),
-                   p("Here is a summary of the data"),
+                   p("Here is a summary of the count data"),
                    tableOutput('summary'),
                    tags$hr(),
                    p("Here is the raw data from the CSV file"),
                    DT::dataTableOutput('contents')
           ), # end  tab
           
-          
-          tabPanel("Correlation Plots",
-                   uiOutput("choose_columns_biplot"),
-                   tags$hr(),
-                   p("This plot may take a few moments to appear when analysing large datasets. You may want to exclude highly correlated variables from the PCA."),
-                   
-                   plotOutput("corr_plot"),
-                   tags$hr(),
-                   p("Summary of correlations"),
-                   tableOutput("corr_tables")
-          ), # end  tab
+          # removed this functionality for minimal version - restore as time permits
+          # tabPanel("Correlation Plots",
+          #          uiOutput("choose_columns_biplot"),
+          #          tags$hr(),
+          #          p("This plot may take a few moments to appear when analysing large datasets. You may want to exclude highly correlated variables from the PCA."),
+          #          
+          #          plotOutput("corr_plot"),
+          #          tags$hr(),
+          #          p("Summary of correlations"),
+          #          tableOutput("corr_tables")
+          # ), # end  tab
           
           tabPanel("Diagnostics",
                    
