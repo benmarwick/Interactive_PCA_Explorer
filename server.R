@@ -8,7 +8,8 @@ list.of.packages <- c("ggplot2",
                       "psych",
                       "Hmisc",
                       "MASS",
-                      "tabplot")
+                      "tabplot",
+                      "ggfortify")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -19,22 +20,34 @@ lapply(list.of.packages, require, character.only = TRUE)
 server <- function(input, output) {
   
   # read in the CSV
+  # this is reactive and should only change if the CSV file is changed
   the_data_fn <- reactive({
-    inFile <- input$file1
+    inFile <- input$count_file
     if (is.null(inFile)) return(NULL)
-    the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
-                               sep = input$sep, quote = input$quote, stringsAsFactors=TRUE)
+    the_data <-   read.csv(inFile$datapath, header = (input$count_header == "Yes"),
+                               sep = input$count_sep, quote = input$count_quote, stringsAsFactors=TRUE)
+    head(the_data)
+    return(the_data)
+  })
+
+  the_metadata_fn <- reactive({
+    inFile <- input$metadata_file
+    if (is.null(inFile)) return(NULL)
+    the_metadata <-   read.csv(inFile$datapath, header = (input$metadata_header == "Yes"),
+                           sep = input$metadata_sep, quote = input$metadata_quote, stringsAsFactors=TRUE)
     return(the_data)
   })
   
-  # TODO: determine how to implement this
-  # return the names of the columns that are factors
-  #get_factors <- ({
-  #  the_data <- the_data_fn(fn)
-  #  colnames <- names(the_data)
-  #  return(names(which(sapply(the_data, is.factor))))
-  #})
-
+  # combine the data & metadata for PCA visualization
+  combined_data_fn <- function() {
+    
+    the_data <- the_data_fn()
+    the_metadata <- the_metadata_fn()
+    
+    # now combine them according to the row / column names
+    
+  }
+  
   # tableplot
   output$tableplot <- renderPlot({
     if(is.null(the_data_fn())) return()

@@ -10,28 +10,26 @@ ui <- bootstrapPage(
                    p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results."),
                    p("Have a look at the ", a("iris.csv", href = "https://raw.githubusercontent.com/benmarwick/Interactive_PCA_Explorer/master/iris.csv"),  " file included with this app to see what a clean CSV file looks like."),
                    tags$hr(),
+                   h3('Count Matrix Input'),
                    p("Select the options that match your CSV file, then upload your file:"),
             
-                
-                   radioButtons(inputId = 'header',  
+                   radioButtons(inputId = 'count_header',  
                                 label = 'Header',
                                 choices = c('Columns have headers'='Yes',
                                             'Columns do not have headers'='No'), 
                                 selected = 'Yes'),
           
-                   radioButtons('sep', 'Separator',
+                   radioButtons('count_sep', 'Separator',
                                 c(Comma=',',
                                   Semicolon=';',
                                   Tab='\t'),
                                 ','),
           
-                   radioButtons('quote', 'Quote',
+                   radioButtons('count_quote', 'Quote',
                                 c(None='',
                                   'Double Quote'='"',
                                   'Single Quote'="'"),
                                 '"'),
-                   
-                   tags$hr(),
                    
                    fileInput('file1', 'Choose a CSV file to upload:',
                              accept = c(
@@ -42,8 +40,41 @@ ui <- bootstrapPage(
                                '.csv',
                                '.tsv'
                              )),
-                   p("After uploading your CSV file, click on the 'Inspect the data' tab")
+                   p("After uploading your CSV file, click on the 'Inspect the data' tab"),
+
+                   tags$hr(),
+                   h3('Metadata Input'),
+                   radioButtons(inputId = 'metadata_header',  
+                                label = 'Metadata header',
+                                choices = c('Columns have headers'='Yes',
+                                            'Columns do not have headers'='No'), 
+                                selected = 'Yes'),
                    
+                   radioButtons('metadata_sep', 'Metadata separator',
+                                c(Comma=',',
+                                  Semicolon=';',
+                                  Tab='\t'),
+                                ','),
+                   
+                   radioButtons('metadata_quote', 'Metadata Quote',
+                                c(None='',
+                                  'Double Quote'='"',
+                                  'Single Quote'="'"),
+                                '"'),
+                   
+                   tags$hr(),
+                   
+                   fileInput('metadata_file', 'Choose a CSV file to upload:',
+                             accept = c(
+                               'text/csv',
+                               'text/comma-separated-values',
+                               'text/tab-separated-values',
+                               'text/plain',
+                               '.csv',
+                               '.tsv'
+                             )),
+                   p("After uploading your CSV file, click on the 'Inspect the data' tab")                   
+                                      
                  ), # end file  tab
           
           tabPanel("Inspect the data",
