@@ -26,7 +26,13 @@ server <- function(input, output) {
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = (input$count_header == "Yes"),
                                sep = input$count_sep, quote = input$count_quote, stringsAsFactors=TRUE)
-    head(the_data)
+    
+    # transform the data so that the rows are samples and columns are genes
+    the_data <- as.data.frame(t(the_data))
+    
+    # sort the countData by row names for good measure
+    the_data <- the_data[order(row.names(the_data)),]
+    # TODO: implement the ability to subselect samples/genes
     return(the_data)
   })
 
@@ -35,6 +41,11 @@ server <- function(input, output) {
     if (is.null(inFile)) return(NULL)
     the_metadata <-   read.csv(inFile$datapath, header = (input$metadata_header == "Yes"),
                            sep = input$metadata_sep, quote = input$metadata_quote, stringsAsFactors=TRUE)
+    # sort the colData by row names for good measure
+    the_metadata <- the_metadata[order(row.names(the_metadata)),]
+    # make each column a factor
+    the_metadata[1:length(the_metadata)] <- as.data.frame(lapply(the_metadata,factor))
+    # TODO: implement the ability to subselect metadata
     return(the_data)
   })
   
@@ -45,6 +56,7 @@ server <- function(input, output) {
     the_metadata <- the_metadata_fn()
     
     # now combine them according to the row / column names
+    combined_
     
   }
   
@@ -215,14 +227,10 @@ output$kmo <- renderPrint({
   
   # choose a grouping variable
   output$the_grouping_variable <- renderUI({
-    the_data <- the_data_fn()
+    the_metadata <- the_metadata_fn()
 
-              
-  # for grouping we want to see only cols where the number of unique values are less than 
-  # 10% the number of observations
-    grouping_cols <- sapply(seq(1, ncol(the_data)), function(i) length(unique(the_data[,i])) < nrow(the_data)/10 )
+    the_data_group_cols <- names(the_metadata)
     
-    the_data_group_cols <- the_data[, grouping_cols, drop = FALSE]
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
                 label = "Grouping variable:",
@@ -235,6 +243,8 @@ pca_objects <- reactive({
   # Keep the selected columns
   columns <-    input$columns
   the_data <- na.omit(the_data_fn())
+  the_metadata <- the_metadata_fn()
+  all_the_data <- combined_data_fn()
   the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
   
   # from http://rpubs.com/sinhrks/plot_pca
@@ -247,7 +257,9 @@ pca_objects <- reactive({
   return(list(the_data = the_data, 
        the_data_subset = the_data_subset,
        pca_output = pca_output, 
-       pcs_df = pcs_df))
+       pcs_df = pcs_df,
+       all_the_data = all_the_data,
+       the_metadata = the_metadata))
   
 })
 
