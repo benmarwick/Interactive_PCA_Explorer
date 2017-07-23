@@ -25,7 +25,8 @@ server <- function(input, output) {
     inFile <- input$count_file
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = (input$count_header == "Yes"),
-                               sep = input$count_sep, quote = input$count_quote, stringsAsFactors=TRUE)
+                               sep = input$count_sep, quote = input$count_quote, 
+                           row.names = 1, stringsAsFactors=TRUE)
     
     # transform the data so that the rows are samples and columns are genes
     the_data <- as.data.frame(t(the_data))
@@ -40,23 +41,30 @@ server <- function(input, output) {
     inFile <- input$metadata_file
     if (is.null(inFile)) return(NULL)
     the_metadata <-   read.csv(inFile$datapath, header = (input$metadata_header == "Yes"),
-                           sep = input$metadata_sep, quote = input$metadata_quote, stringsAsFactors=TRUE)
+                           sep = input$metadata_sep, quote = input$metadata_quote, 
+                           row.names=1, stringsAsFactors=TRUE)
     # sort the colData by row names for good measure
     the_metadata <- the_metadata[order(row.names(the_metadata)),]
     # make each column a factor
     the_metadata[1:length(the_metadata)] <- as.data.frame(lapply(the_metadata,factor))
     # TODO: implement the ability to subselect metadata
-    return(the_data)
+    return(the_metadata)
   })
   
   # combine the data & metadata for PCA visualization
   combined_data_fn <- function() {
-    
     the_data <- the_data_fn()
     the_metadata <- the_metadata_fn()
     
     # now combine them according to the row / column names
-    combined_
+    all_data <- merge(the_data, the_metadata, by="row.names")
+    # assign the row names and remove the row.names column
+    rownames(all_data) <- all_data$Row.names
+    all_data <- all_data[-1]
+    # sort by row names
+    all_data <- all_data[order(row.names(all_data)),]
+    
+    return(all_data)
     
   }
   
@@ -79,6 +87,7 @@ server <- function(input, output) {
   output$summary <-  renderTable({
     the_data <- the_data_fn()
     psych::describe(the_data)
+    cat(file=stderr(),"past describe")
   })
   
   # removed this functionality for minimal version - restore as time permits
