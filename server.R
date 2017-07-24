@@ -17,6 +17,9 @@ if(length(new.packages)) install.packages(new.packages)
 # load all these
 lapply(list.of.packages, require, character.only = TRUE)
 
+# updating the max upload size to 1GB
+options(shiny.maxRequestSize=1024*1024^2)
+
 server <- function(input, output) {
   
   # read in the CSV
@@ -26,7 +29,7 @@ server <- function(input, output) {
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = (input$count_header == "Yes"),
                                sep = input$count_sep, quote = input$count_quote, 
-                           row.names = 1, stringsAsFactors=TRUE)
+                           row.names = 1, stringsAsFactors=TRUE, check.names = FALSE)
     
     # transform the data so that the rows are samples and columns are genes
     the_data <- as.data.frame(t(the_data))
@@ -42,7 +45,7 @@ server <- function(input, output) {
     if (is.null(inFile)) return(NULL)
     the_metadata <-   read.csv(inFile$datapath, header = (input$metadata_header == "Yes"),
                            sep = input$metadata_sep, quote = input$metadata_quote, 
-                           row.names=1, stringsAsFactors=TRUE)
+                           row.names=1, stringsAsFactors=TRUE, check.names=FALSE)
     # sort the colData by row names for good measure
     the_metadata <- the_metadata[order(row.names(the_metadata)),]
     # make each column a factor
@@ -212,28 +215,20 @@ output$kmo <- renderPrint({
 }) 
   
  
-  # commented this sectio nout as we will use all columns (Genes)
-  # add a new section on picking the rows (samples to exclude)
-  # # Check boxes to choose columns
-  # output$choose_columns_pca <- renderUI({
-  #   
-  #   the_data <- the_data_fn()
-  #   
-  #   # Get the data set with the appropriate name
-  #   
-  #   # we only want to show numeric cols
-  #   the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
-  #   # exclude cols with zero variance
-  #   the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-  #   
-  #   
-  #   colnames <- names(the_data_num)
-  #   
-  #   # Create the checkboxes and select them all by default
-  #   checkboxGroupInput("columns", "Choose columns", 
-  #                      choices  = colnames,
-  #                      selected = colnames)
-  # })
+  #commented this sectio nout as we will use all columns (Genes)
+  #add a new section on picking the rows (samples to exclude)
+  # Check boxes to choose columns
+  output$choose_samples_pca <- renderUI({
+
+    the_data <- the_data_fn()
+
+    samplenames <- rownames(the_data)
+
+    # Create the checkboxes and select them all by default
+    checkboxGroupInput("samples", "Choose samples",
+                       choices  = samplenames,
+                       selected = samplenames)
+  })
   
   # choose a grouping variable
   output$the_grouping_variable <- renderUI({
@@ -250,29 +245,45 @@ output$kmo <- renderPrint({
   
   
 pca_objects <- reactive({
-  # Keep the selected columns
-  columns <-    input$columns
+
   the_data <- na.omit(the_data_fn())
   the_metadata <- the_metadata_fn()
   all_the_data <- combined_data_fn()
+
+  # Keep the selected samples
+  samples <-    input$samples
+  # if the samples have not been selected, use all
+  if (is.null(samples)) {
+    samples <- rownames(the_data)
+  }
+    
+  browser()
   
-  # commented out the below; uncomment when we have mechanism to remove samples (rows)
-  the_data_subset <- the_data
-  #the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
+  #the_data_subset <- the_data
+  the_data_subset <- the_data[which(rownames(the_data) %in% samples), ]
+
+  # remove columns with 0 variance:
+  the_data_subset <- the_data_subset[,!apply(the_data_subset, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+
+  the_metadata_subset <- the_metadata[which(rownames(the_metadata) %in% rownames(the_data_subset)), ]
+  all_the_data_subset <- all_the_data[which(rownames(all_the_data) %in% rownames(the_data_subset)), ]
+  
+    
+    #the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
   
   # from http://rpubs.com/sinhrks/plot_pca
   pca_output <- prcomp(na.omit(the_data_subset), 
                        center = (input$center == 'Yes'), 
                        scale. = (input$scale. == 'Yes'))
   # data.frame of PCs
-  pcs_df <- cbind(all_the_data, pca_output$x)
+  pcs_df <- cbind(all_the_data_subset, pca_output$x)
   
   return(list(the_data = the_data, 
        the_data_subset = the_data_subset,
        pca_output = pca_output, 
        pcs_df = pcs_df,
-       all_the_data = all_the_data,
-       the_metadata = the_metadata))
+       all_the_data = all_the_data_subset,
+       the_metadata = the_metadata_subset))
   
 })
 

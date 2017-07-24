@@ -77,6 +77,26 @@ ui <- bootstrapPage(
                                       
                  ), # end file  tab
           
+          tabPanel("PCA Parameters",
+                   
+                   p("Choose the samples to include in the PCA."),
+                   p("The PCA is automatically re-computed each time you change your selection."),
+                   uiOutput("choose_samples_pca"),
+                   tags$hr(),
+                   p("Select options for the PCA computation (we are using the prcomp function here)"),
+                   radioButtons(inputId = 'center',  
+                                label = 'Center',
+                                choices = c('Shift variables to be zero centered'='Yes',
+                                            'Do not shift variables'='No'), 
+                                selected = 'Yes'),
+                   
+                   radioButtons('scale.', 'Scale',
+                                choices = c('Scale variables to have unit variance'='Yes',
+                                            'Do not scale variables'='No'), 
+                                selected = 'Yes')
+                   
+          ), # end  tab
+                    
           tabPanel("Inspect the data",
                    p("Here is a summary of the count data"),
                    tableOutput('summary'),
@@ -110,31 +130,6 @@ ui <- bootstrapPage(
                    
                    
           ), # end  tab
-          
-          tabPanel("Compute PCA",
-                   
-                   p("Choose the columns of your data to include in the PCA."),
-                   p("Only columns containing numeric data are shown here because PCA doesn't work with non-numeric data."),
-                   p("The PCA is automatically re-computed each time you change your selection."),
-                   p("Observations (ie. rows) are automatically removed if they contain any missing values."),
-                   p("Variables with zero variance have been automatically removed because they're not useful in a PCA."),
-                   uiOutput("choose_columns_pca"),
-                   tags$hr(),
-                   p("Select options for the PCA computation (we are using the prcomp function here)"),
-                   radioButtons(inputId = 'center',  
-                                label = 'Center',
-                                choices = c('Shift variables to be zero centered'='Yes',
-                                            'Do not shift variables'='No'), 
-                                selected = 'Yes'),
-                   
-                   radioButtons('scale.', 'Scale',
-                                choices = c('Scale variables to have unit variance'='Yes',
-                                            'Do not scale variables'='No'), 
-                                selected = 'Yes')
-                   
-          ), # end  tab
-          
-
       
           tabPanel("PC Plots",
                    h2("Scree plot"),
