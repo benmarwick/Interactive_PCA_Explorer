@@ -212,27 +212,28 @@ output$kmo <- renderPrint({
 }) 
   
  
-  
-  # Check boxes to choose columns
-  output$choose_columns_pca <- renderUI({
-    
-    the_data <- the_data_fn()
-    
-    # Get the data set with the appropriate name
-    
-    # we only want to show numeric cols
-    the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
-    # exclude cols with zero variance
-    the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-    
-    
-    colnames <- names(the_data_num)
-    
-    # Create the checkboxes and select them all by default
-    checkboxGroupInput("columns", "Choose columns", 
-                       choices  = colnames,
-                       selected = colnames)
-  })
+  # commented this sectio nout as we will use all columns (Genes)
+  # add a new section on picking the rows (samples to exclude)
+  # # Check boxes to choose columns
+  # output$choose_columns_pca <- renderUI({
+  #   
+  #   the_data <- the_data_fn()
+  #   
+  #   # Get the data set with the appropriate name
+  #   
+  #   # we only want to show numeric cols
+  #   the_data_num <- na.omit(the_data[,sapply(the_data,is.numeric)])
+  #   # exclude cols with zero variance
+  #   the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+  #   
+  #   
+  #   colnames <- names(the_data_num)
+  #   
+  #   # Create the checkboxes and select them all by default
+  #   checkboxGroupInput("columns", "Choose columns", 
+  #                      choices  = colnames,
+  #                      selected = colnames)
+  # })
   
   # choose a grouping variable
   output$the_grouping_variable <- renderUI({
@@ -243,7 +244,7 @@ output$kmo <- renderPrint({
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
                 label = "Grouping variable:",
-                choices=c("None", names(the_data_group_cols)))
+                choices=c("None", the_data_group_cols))
 
   })
   
@@ -254,14 +255,17 @@ pca_objects <- reactive({
   the_data <- na.omit(the_data_fn())
   the_metadata <- the_metadata_fn()
   all_the_data <- combined_data_fn()
-  the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
+  
+  # commented out the below; uncomment when we have mechanism to remove samples (rows)
+  the_data_subset <- the_data
+  #the_data_subset <- na.omit(the_data[, columns, drop = FALSE])
   
   # from http://rpubs.com/sinhrks/plot_pca
   pca_output <- prcomp(na.omit(the_data_subset), 
                        center = (input$center == 'Yes'), 
                        scale. = (input$scale. == 'Yes'))
   # data.frame of PCs
-  pcs_df <- cbind(the_data, pca_output$x)
+  pcs_df <- cbind(all_the_data, pca_output$x)
   
   return(list(the_data = the_data, 
        the_data_subset = the_data_subset,
@@ -317,7 +321,7 @@ output$the_pcs_to_plot_y <- renderUI({
  pca_biplot <- reactive({
     pcs_df <- pca_objects()$pcs_df
     pca_output <-  pca_objects()$pca_output
-    
+
     var_expl_x <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))]^2/sum(pca_output$sdev^2), 1)
     var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
     labels <- rownames(pca_output$x)
@@ -351,7 +355,8 @@ output$the_pcs_to_plot_y <- renderUI({
                                           )) +
       stat_ellipse(geom = "polygon", alpha = 0.1) +
     
-      geom_text(aes(label = labels),  size = 5) +
+      #geom_text(aes(label = labels),  size = 5) +
+      geom_point() +
       theme_bw(base_size = 14) +
       scale_colour_discrete(guide = FALSE) +
       guides(fill = guide_legend(title = "groups")) +
@@ -409,8 +414,8 @@ output$the_pcs_to_plot_y <- renderUI({
   })
   
   output$pca_details <- renderPrint({
-    # 
-    print(pca_objects()$pca_output$rotation)
+    #
+    print(pca_objects()$pca_output$x)
     summary(pca_objects()$pca_output)
     
   })

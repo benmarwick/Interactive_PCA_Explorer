@@ -150,25 +150,25 @@ ui <- bootstrapPage(
                    uiOutput("the_pcs_to_plot_x"),
                    uiOutput("the_pcs_to_plot_y"),
                    tags$hr(),
-                   
+
                    p("Click and drag on the first plot below to zoom into a region on the plot. Or you can go directly to the second plot below to select points to get more information about them."),
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
                    plotOutput ("z_plot1", height = 400,
-                               brush = brushOpts(
-                                 id = "z_plot1Brush",
-                                 resetOnNew = TRUE)),
+                                brush = brushOpts(
+                                  id = "z_plot1Brush",
+                                  resetOnNew = TRUE)),
                    tags$hr(),
                    
                    p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
-
-                   plotOutput("z_plot2", height = 400,
-                              brush = brushOpts(
-                                id = "plot_brush_after_zoom",
-                                resetOnNew = TRUE)),
+                   # problematic plots commented out below                   
+                   # plotOutput("z_plot2", height = 400,
+                   #            brush = brushOpts(
+                   #              id = "plot_brush_after_zoom",
+                   #              resetOnNew = TRUE)),
                    tags$hr(),
-                   p("Details of the brushed points"),
-                   tableOutput("brush_info_after_zoom")
+                   p("Details of the brushed points")
+                   # tableOutput("brush_info_after_zoom")
           ), # end  tab 
           
 
