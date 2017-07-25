@@ -82,10 +82,10 @@ ui <- fluidPage(
                                  label = 'Scale variables to have unit variance',
                                  value = TRUE),
                    radioButtons('normalization', 'Normalization',
-                                choices = c('None'='None',
+                                choices = c('None'='NONE',
                                             'Variance Stabilizing Transform (vst)'='vst', 
                                             'Regularized logarithm (rlog)'='rlog'), 
-                                selected = 'None')
+                                selected = 'NONE')
                    ),column(4,
                p("Choose the samples to include in the PCA."),
                p("The PCA is automatically re-computed each time you change your selection."),
@@ -144,10 +144,10 @@ ui <- fluidPage(
                    plotOutput("z_plot2", height = 400,
                               brush = brushOpts(
                                 id = "plot_brush_after_zoom",
-                                resetOnNew = TRUE)),
-                   tags$hr(),
-                   p("Details of the brushed points"),
-                   tableOutput("brush_info_after_zoom")
+                                resetOnNew = TRUE))
+                   # tags$hr(),
+                   # p("Details of the brushed points"),
+                   # tableOutput("brush_info_after_zoom")
           ), # end  tab 
           
           tabPanel("Output",

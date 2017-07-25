@@ -264,13 +264,29 @@ server <- function(input, output) {
     # remove columns with 0 variance:
     the_data_subset <- the_data_subset[,!apply(the_data_subset, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
     
+    # normalize, if we were requested to do so
+    normalization = input$normalization
+    if (normalization == 'rlog') {
+      print("proceeding with rlog transformation")
+      library(DESeq2)
+      the_data_subset <- rlog(round(the_data_subset))
+    } else if (normalization == 'vst') {
+      print("proceeding with vst transformation")
+      library(DESeq2)
+      the_data_subset <- vst(round(the_data_subset))
+    } else if (is.null(normalization) | normalization == 'NONE') {
+      print("no normalization requested")
+    } else {
+      print(paste("Unrecognized normalization type: ", normalization, sep=""))
+    }
+    
     the_metadata_subset <- the_metadata[which(rownames(the_metadata) %in% rownames(the_data_subset)), ]
     all_the_data_subset <- all_the_data[which(rownames(all_the_data) %in% rownames(the_data_subset)), ]
     
     # from http://rpubs.com/sinhrks/plot_pca
     pca_output <- prcomp(na.omit(the_data_subset), 
                          center = input$center, 
-                         scale_data = input$scale_data)
+                         scale = input$scale_data)
     # data.frame of PCs
     pcs_df <- cbind(all_the_data_subset, pca_output$x)
     

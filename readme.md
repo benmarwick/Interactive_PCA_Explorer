@@ -14,7 +14,7 @@ First, you can run it on your computer like so:
 
 ```
 library(shiny)
-runGitHub("interactive_pca_explorer", "LJI-Bioinformatics")
+runGitHub("shiny-pca-maker", "LJI-Bioinformatics")
 
 ```
 
@@ -22,8 +22,8 @@ Second, you can clone this repo to have the code on your computer, and run the a
 
 ```
 # First clone the repository with git. If you have cloned it into
-# ~/interactive_pca_explorer, first change your working directory to ~/interactive_pca_explorer, then use runApp() to start the app.
-setwd("~/interactive_pca_explorer") # change to match where you downloaded this repo to
+# ~/shiny-pca-maker, first change your working directory to ~/shiny-pca-maker, then use runApp() to start the app.
+setwd("~/shiny-pca-maker") # change to match where you downloaded this repo to
 runApp() # runs the app 
 ```
 
