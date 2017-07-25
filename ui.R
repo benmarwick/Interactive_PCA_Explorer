@@ -1,70 +1,52 @@
-ui <- bootstrapPage(
+ui <- fluidPage(
   mainPanel(
-    titlePanel("Interactive PCA Explorer"),
+    titlePanel("Shiny PCA Maker"),
         
         tabsetPanel(
           
-          tabPanel("Data input", 
-                   p("Before uploading your data, check that it is clean, especially ensure that the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
+          tabPanel("Input",
+                   p("Count matrix and metadata must be uploaded separately.  Count matrices will have rows as genes (or some other feature),
+                      and columns as samples. The values of the cells are the 'counts', which can be provided as raw or normalized.  An example
+                      file is here.  Metadata files are provided with columns as conditions/phenotypes/other and rows as samples.  The first column
+                      must include the sample names that match the sample names from the count matrix file. An example metadata file, matching the
+                     count data file is here."),
+                   p("Before uploading your data, check that it is clean, especially ensure that
+                     the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
                    p("Rows that contain one or more NAs will be excluded from the PCA."),
                    p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results."),
-                   p("Have a look at the ", a("iris.csv", href = "https://raw.githubusercontent.com/benmarwick/Interactive_PCA_Explorer/master/iris.csv"),  " file included with this app to see what a clean CSV file looks like."),
+                   # TODO: replace this example, as it won't work with this version
+                   p("Have a look at the ", a("iris.csv", href = "./iris.csv"),  " file included with this app to see what a clean CSV file looks like."),
                    tags$hr(),
+                   p("Select the options that match your files:"),
+                   fluidRow(column(6,
                    h3('Count Matrix Input'),
-                   p("Select the options that match your CSV file, then upload your file:"),
-            
-                   radioButtons(inputId = 'count_header',  
-                                label = 'Header',
-                                choices = c('Columns have headers'='Yes',
-                                            'Columns do not have headers'='No'), 
-                                selected = 'Yes'),
-          
+                   fileInput('count_file', 'Choose a file:',
+                             accept = c(
+                               'text/csv',
+                               'text/comma-separated-values',
+                               'text/tab-separated-values',
+                               'text/plain',
+                               '.csv',
+                               '.tsv'
+                             )),
                    radioButtons('count_sep', 'Separator',
-                                c(Comma=',',
-                                  Semicolon=';',
-                                  Tab='\t'),
-                                ','),
+                                c(Tab='\t',
+                                  Comma=',',
+                                  Semicolon=';'
+                                  ),
+                                '\t'),
           
-                   radioButtons('count_quote', 'Quote',
-                                c(None='',
+                   radioButtons('count_quote', 'Quotes around strings',
+                                c(
+                                  'Both'="\"'",
                                   'Double Quote'='"',
-                                  'Single Quote'="'"),
-                                '"'),
-                   
-                   fileInput('count_file', 'Choose a CSV file to upload:',
-                             accept = c(
-                               'text/csv',
-                               'text/comma-separated-values',
-                               'text/tab-separated-values',
-                               'text/plain',
-                               '.csv',
-                               '.tsv'
-                             )),
-                   p("After uploading your CSV file, click on the 'Inspect the data' tab"),
-
-                   tags$hr(),
+                                  'Single Quote'="'",
+                                  None=''
+                                ),
+                                "\"'")
+                   ),column(6,
                    h3('Metadata Input'),
-                   radioButtons(inputId = 'metadata_header',  
-                                label = 'Metadata header',
-                                choices = c('Columns have headers'='Yes',
-                                            'Columns do not have headers'='No'), 
-                                selected = 'Yes'),
-                   
-                   radioButtons('metadata_sep', 'Metadata separator',
-                                c(Comma=',',
-                                  Semicolon=';',
-                                  Tab='\t'),
-                                ','),
-                   
-                   radioButtons('metadata_quote', 'Metadata Quote',
-                                c(None='',
-                                  'Double Quote'='"',
-                                  'Single Quote'="'"),
-                                '"'),
-                   
-                   tags$hr(),
-                   
-                   fileInput('metadata_file', 'Choose a CSV file to upload:',
+                   fileInput('metadata_file', 'Choose a file:',
                              accept = c(
                                'text/csv',
                                'text/comma-separated-values',
@@ -73,37 +55,53 @@ ui <- bootstrapPage(
                                '.csv',
                                '.tsv'
                              )),
-                   p("After uploading your CSV file, click on the 'Inspect the data' tab")                   
-                                      
+                   radioButtons('metadata_sep', 'Separator',
+                                c(Tab='\t',
+                                  Comma=',',
+                                  Semicolon=';'),
+                                '\t'),
+                   
+                   radioButtons('metadata_quote', 'Quotes around strings',
+                                c(
+                                  'Both'="\"'",
+                                  'Double Quote'='"',
+                                  'Single Quote'="'",
+                                  None=''
+                                  ),
+                                "\"'")
+                  ))                    
                  ), # end file  tab
           
-          tabPanel("PCA Parameters",
-                   
-                   p("Choose the samples to include in the PCA."),
-                   p("The PCA is automatically re-computed each time you change your selection."),
-                   uiOutput("choose_samples_pca"),
-                   tags$hr(),
-                   p("Select options for the PCA computation (we are using the prcomp function here)"),
-                   radioButtons(inputId = 'center',  
-                                label = 'Center',
-                                choices = c('Shift variables to be zero centered'='Yes',
-                                            'Do not shift variables'='No'), 
-                                selected = 'Yes'),
-                   
-                   radioButtons('scale.', 'Scale',
-                                choices = c('Scale variables to have unit variance'='Yes',
-                                            'Do not scale variables'='No'), 
-                                selected = 'Yes')
+          tabPanel("Parameters",
+                   fluidRow(column(4,
+                   p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
+                   checkboxInput(inputId = 'center',
+                                 label = 'Shift variables to be zero-centered',
+                                 value = TRUE),
+                   checkboxInput(inputId = 'scale_data',
+                                 label = 'Scale variables to have unit variance',
+                                 value = TRUE),
+                   radioButtons('normalization', 'Normalization',
+                                choices = c('None'='None',
+                                            'Variance Stabilizing Transform (vst)'='vst', 
+                                            'Regularized logarithm (rlog)'='rlog'), 
+                                selected = 'None')
+                   ),column(4,
+               p("Choose the samples to include in the PCA."),
+               p("The PCA is automatically re-computed each time you change your selection."),
+               uiOutput("choose_samples_pca")
+                   ))
                    
           ), # end  tab
-                    
-          tabPanel("Inspect the data",
-                   p("Here is a summary of the count data"),
-                   tableOutput('summary'),
-                   tags$hr(),
-                   p("Here is the raw data from the CSV file"),
-                   DT::dataTableOutput('contents')
-          ), # end  tab
+
+          # removed this functionality for minimal version - restore as time permits
+          # tabPanel("Inspect the data",
+          #          p("Here is a summary of the count data"),
+          #          tableOutput('summary'),
+          #          tags$hr(),
+          #          p("Here is the raw data from the CSV file"),
+          #          DT::dataTableOutput('contents')
+          # ), # end  tab
           
           # removed this functionality for minimal version - restore as time permits
           # tabPanel("Correlation Plots",
@@ -116,22 +114,8 @@ ui <- bootstrapPage(
           #          p("Summary of correlations"),
           #          tableOutput("corr_tables")
           # ), # end  tab
-          
-          tabPanel("Diagnostics",
-                   
-                   p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
-                   tags$hr(),
-                   p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
-                   verbatimTextOutput("bartlett"),
-                   tags$hr(),
-                   p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
-                   verbatimTextOutput("kmo")
-                   
-                   
-                   
-          ), # end  tab
       
-          tabPanel("PC Plots",
+          tabPanel("Plots",
                    h2("Scree plot"),
                    p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
                    plotOutput("plot2", height = "300px"),
@@ -156,25 +140,33 @@ ui <- bootstrapPage(
                    tags$hr(),
                    
                    p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
-                   # problematic plots commented out below                   
-                   # plotOutput("z_plot2", height = 400,
-                   #            brush = brushOpts(
-                   #              id = "plot_brush_after_zoom",
-                   #              resetOnNew = TRUE)),
+                   #problematic plots commented out below
+                   plotOutput("z_plot2", height = 400,
+                              brush = brushOpts(
+                                id = "plot_brush_after_zoom",
+                                resetOnNew = TRUE)),
                    tags$hr(),
-                   p("Details of the brushed points")
-                   # tableOutput("brush_info_after_zoom")
+                   p("Details of the brushed points"),
+                   tableOutput("brush_info_after_zoom")
           ), # end  tab 
           
-
-          
-          tabPanel("PCA output",
-                   verbatimTextOutput("pca_details")
+          tabPanel("Output",
+                   p("Output of the PCA function"),
+                   verbatimTextOutput("pca_details"),
+                   tags$hr(),
+                   p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
+                   tags$hr(),
+                   p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
+                   verbatimTextOutput("bartlett"),
+                   tags$hr(),
+                   p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
+                   verbatimTextOutput("kmo")
                    
-          ), # end  tab 
+          ), # end  tab          
           
-          tabPanel("Colophon",
-                   p("The code for this Shiny app is online at ", a("https://github.com/benmarwick/Interactive_PCA_Explorer", href = "https://github.com/benmarwick/Interactive_PCA_Explorer"), ". Please post any feedback, question, etc. as an ", a("issue on github", href = "https://github.com/benmarwick/Interactive_PCA_Explorer/issues/new"), "."),
+          tabPanel("License",
+                   p("The code for this Shiny app is online at ", a("https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker"), ". Please post any feedback, question, etc. as an ", a("issue on github", href = "https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker/issues/new"), "."),
+                   p("The code for this Shiny app was forked from ", a("https://github.com/benmarwick/Interactive_PCA_Explorer")), 
                    p("The text is licensed ", a("CC-BY", href = "http://creativecommons.org/licenses/by/4.0/"), " and the code ", a(href = "https://opensource.org/licenses/MIT", "MIT"), ".")
                    
                    

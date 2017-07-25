@@ -1,8 +1,8 @@
-# Interactive PCA Explorer
+# Shiny PCA Maker
 
-This [Shiny](http://shiny.rstudio.com/) application takes a CSV file of clean data, allows you to inspect the data and compute a Principal Components Analysis, and will return several diagnostic plots and tables. The plots include a tableplot, a correlation matrix, a scree plot, and a biplot of Principal Components.
+This [Shiny](http://shiny.rstudio.com/) application takes a CSV file of clean data and a CSV of metadata, allows you to select a few parameters to compute a Principal Components Analysis, and will return several diagnostic plots and tables. The plots include a scree plot, and a biplot of Principal Components.
 
-You can chose which columns to include in the PCA, and which column to use as a grouping variable. You can choose the center and/or scale the data, or not. You can choose which PCs to include on the biplot.
+You can chose which columns to include in the PCA, and which column to use as a grouping variable. You can choose to center, scale, or normalize (via rlog or vst). You can choose which PCs to include on the biplot.
 
 The biplot of PCs is interactive, so you can click on points or select points and inspect the details of those points in a table. 
 
@@ -14,7 +14,7 @@ First, you can run it on your computer like so:
 
 ```
 library(shiny)
-runGitHub("interactive_pca_explorer", "benmarwick")
+runGitHub("interactive_pca_explorer", "LJI-Bioinformatics")
 
 ```
 
@@ -31,7 +31,7 @@ This app depends on several R packages (ggplot2, DT, GGally, psych, Hmisc, MASS,
 
 ## How to use
 
-Start on the first (left-most) tab to upload your CSV file, then click on each tab, in order from left to right, to see the results.
+Start on the first (left-most) tab to upload your CSV files, then click on each tab, in order from left to right, to see the results.
 
 ## Screenshots
 
@@ -42,11 +42,6 @@ Here's what it looks like. Here we have input a CSV file that contain the [iris 
 Then we can see some simple descriptions of the data, and the raw data at the bottom of the page.   
 
 
-![](figures/002_inspect.png)    
-
-Below we see how we can choose the variables to explore in a correlation matrix. We also have a table that summarizes the correlations and gives p-values.  
-
-![](figures/003_corr.png)  
 
 Below we have a few popular diagnostic tests that many people like to do before doing a PCA. They're not very informative and can be skipped, but people coming from SPSS might feel more comfortable if they can see them here also. 
 
@@ -67,4 +62,4 @@ Finally we have some of the raw output from the PCA.
 
 ## Feedback, contributing, etc.
 
-Please [open an issue](https://github.com/benmarwick/wordcountaddin/issues/new) if you find something that doesn't work as expected. Note that this project is released with a [Guide to Contributing](CONTRIBUTING.md) and a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please [open an issue](https://github.com/LJI-Bioinformatics/Interactive_PCA_Explorer/issues/new) if you find something that doesn't work as expected.
