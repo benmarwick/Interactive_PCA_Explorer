@@ -84,7 +84,7 @@ ui <- fluidPage(
                    radioButtons('normalization', 'Normalization',
                                 choices = c('None'='NONE',
                                             'Variance Stabilizing Transform (vst)'='vst', 
-                                            'Regularized logarithm (rlog)'='rlog'), 
+                                            'Regularized logarithm (rlog) - WARNING: this can take considerable time'='rlog'), 
                                 selected = 'NONE')
                    ),column(4,
                p("Choose the samples to include in the PCA."),
@@ -153,14 +153,15 @@ ui <- fluidPage(
           tabPanel("Output",
                    p("Output of the PCA function"),
                    verbatimTextOutput("pca_details"),
-                   tags$hr(),
-                   p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
-                   tags$hr(),
-                   p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
-                   verbatimTextOutput("bartlett"),
-                   tags$hr(),
-                   p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
-                   verbatimTextOutput("kmo")
+                   tags$hr()
+                   # TODO: determine which of the following outputs are problematic
+                   # p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
+                   # tags$hr(),
+                   # p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
+                   # verbatimTextOutput("bartlett"),
+                   # tags$hr(),
+                   # p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
+                   # verbatimTextOutput("kmo")
                    
           ), # end  tab          
           

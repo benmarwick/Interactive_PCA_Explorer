@@ -244,10 +244,15 @@ server <- function(input, output) {
   
   
   pca_objects <- reactive({
-    
+    withProgress(message = 'PCA calculation in progress',
+                 detail = 'This may take a while...', value = 0, {
+
     the_data <- na.omit(the_data_fn())
+    incProgress(0.1)
     the_metadata <- the_metadata_fn()
+    incProgress(0.1)
     all_the_data <- combined_data_fn()
+    incProgress(0.1)
     
     # Keep the selected samples
     samples <-    input$samples
@@ -260,36 +265,49 @@ server <- function(input, output) {
     # TODO: move this into 'the_data_fn' or somehow allow for normalization to not have to be recalculated each time any of the PCA
     #       parameters is changed...although maybe it should?
     the_data_subset <- the_data[which(rownames(the_data) %in% samples), ]
+    incProgress(0.1)
     
     # remove columns with 0 variance:
     the_data_subset <- the_data_subset[,!apply(the_data_subset, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
+    incProgress(0.1)
     
     # normalize, if we were requested to do so
     normalization = input$normalization
     if (normalization == 'rlog') {
       print("proceeding with rlog transformation")
       library(DESeq2)
-      the_data_subset <- rlog(round(the_data_subset))
+      # for rlog & vst we first need to transform the data
+      transformed_subset <- as.matrix(t(round(the_data_subset)))
+      transformed_rlog_subset <- rlog(transformed_subset)
+      the_data_subset <- t(transformed_rlog_subset)
     } else if (normalization == 'vst') {
       print("proceeding with vst transformation")
       library(DESeq2)
-      the_data_subset <- vst(round(the_data_subset))
+      # for rlog & vst we first need to transform the data
+      transformed_subset <- as.matrix(t(round(the_data_subset)))
+      transformed_vst_subset <- vst(transformed_subset)
+      the_data_subset <- t(transformed_vst_subset)
     } else if (is.null(normalization) | normalization == 'NONE') {
       print("no normalization requested")
     } else {
       print(paste("Unrecognized normalization type: ", normalization, sep=""))
     }
-    
+    incProgress(0.2)
+
     the_metadata_subset <- the_metadata[which(rownames(the_metadata) %in% rownames(the_data_subset)), ]
     all_the_data_subset <- all_the_data[which(rownames(all_the_data) %in% rownames(the_data_subset)), ]
+    incProgress(0.1)
     
     # from http://rpubs.com/sinhrks/plot_pca
     pca_output <- prcomp(na.omit(the_data_subset), 
                          center = input$center, 
                          scale = input$scale_data)
+    incProgress(0.1)
+    
     # data.frame of PCs
     pcs_df <- cbind(all_the_data_subset, pca_output$x)
-    
+    incProgress(0.1)
+                 }) # end of withProgress
     return(list(the_data = the_data, 
                 the_data_subset = the_data_subset,
                 pca_output = pca_output, 
@@ -349,48 +367,78 @@ server <- function(input, output) {
     var_expl_y <- round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_y))]^2/sum(pca_output$sdev^2), 1)
     labels <- rownames(pca_output$x)
     grouping <- input$the_grouping_variable
+    if (is.null(grouping)) {
+      grouping = 'None'
+    }
     
     #TODO: consolidate these two versions of the plot
     #TODO: separate the plot + legend since the legends can vary in size considerably
     
-    if(grouping == 'None'){
-      # plot without grouping variable
-      pc_plot_no_groups  <- ggplot(pcs_df, 
-                                   aes_string(input$the_pcs_to_plot_x, 
-                                              input$the_pcs_to_plot_y
-                                   )) +
-        
-        
-        geom_text(aes(label = labels),  size = 5) +
-        theme_bw(base_size = 14) +
-        coord_equal() +
-        xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-        ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
-      # the plot
-      pc_plot_no_groups
-      
-      
+    pc_plot <- ggplot(pcs_df)
+    
+    pc_plot <- pc_plot +
+      geom_point() +
+      theme_bw(base_size = 14) +
+      scale_colour_discrete(guide = FALSE) +
+      guides(fill = guide_legend(title = "groups")) +
+      theme(legend.position="top") +
+      coord_equal() +
+      xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+      ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
+    
+    
+    if (grouping == 'None') {
+      pc_plot <- pc_plot + aes_string(input$the_pcs_to_plot_x, 
+                           input$the_pcs_to_plot_y)
     } else {
-      # plot with grouping variable
-      
-      pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
-      pc_plot_groups  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
+      fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
+      pc_plot <- pc_plot +  aes_string(input$the_pcs_to_plot_x, 
                                                    input$the_pcs_to_plot_y, 
-                                                   fill = 'fill_', 
-                                                   colour = 'fill_'
-      )) +
-        stat_ellipse(geom = "polygon", alpha = 0.1) +
-        geom_point() +
-        theme_bw(base_size = 14) +
-        scale_colour_discrete(guide = FALSE) +
-        guides(fill = guide_legend(title = "groups")) +
-        theme(legend.position="top") +
-        coord_equal() +
-        xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-        ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
-      # the plot
-      pc_plot_groups
+                                                   fill =  'fill_', 
+                                                   colour = 'fill_')
+      + stat_ellipse(geom = "polygon", alpha = 0.1)
     }
+    
+    pc_plot
+    
+    # if(grouping == 'None'){
+    #   # plot without grouping variable
+    #   pc_plot_no_groups  <- ggplot(pcs_df, 
+    #                                aes_string(input$the_pcs_to_plot_x, 
+    #                                           input$the_pcs_to_plot_y
+    #                                )) +
+    #     
+    #     geom_point() +
+    #     #geom_text(aes(label = labels),  size = 5) +
+    #     theme_bw(base_size = 14) +
+    #     coord_equal() +
+    #     xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+    #     ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
+    #   # the plot
+    #   pc_plot_no_groups
+    #   
+    #   
+    # } else {
+    #   # plot with grouping variable
+    #   
+    #   pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
+    #   pc_plot_groups  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
+    #                                                input$the_pcs_to_plot_y, 
+    #                                                fill = 'fill_', 
+    #                                                colour = 'fill_'
+    #   )) +
+    #     stat_ellipse(geom = "polygon", alpha = 0.1) +
+    #     geom_point() +
+    #     theme_bw(base_size = 14) +
+    #     scale_colour_discrete(guide = FALSE) +
+    #     guides(fill = guide_legend(title = "groups")) +
+    #     theme(legend.position="top") +
+    #     coord_equal() +
+    #     xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
+    #     ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
+    #   # the plot
+    #   pc_plot_groups
+    # }
     
     
   })
@@ -408,30 +456,37 @@ server <- function(input, output) {
     
   })
   
-  # zoom ranges
-  zooming <- reactiveValues(x = NULL, y = NULL)
-  
-  observe({
-    brush <- input$z_plot1Brush
-    if (!is.null(brush)) {
-      zooming$x <- c(brush$xmin, brush$xmax)
-      zooming$y <- c(brush$ymin, brush$ymax)
-    }
-    else {
-      zooming$x <- NULL
-      zooming$y <- NULL
-    }
-  })
+  # commented out and replaced by calling brushes directly
+  # # zoom ranges
+  # zooming <- reactiveValues(x = NULL, y = NULL)
+  # 
+  # observe({
+  #   brush <- input$z_plot1Brush
+  #   if (!is.null(brush)) {
+  #     zooming$x <- c(brush$xmin, brush$xmax)
+  #     zooming$y <- c(brush$ymin, brush$ymax)
+  #   }
+  #   else {
+  #     zooming$x <- NULL
+  #     zooming$y <- NULL
+  #   }
+  # })
   
   
   # for zooming
   output$z_plot2 <- renderPlot({
     
-    pca_biplot() + coord_cartesian(xlim = zooming$x, ylim = zooming$y) 
+    brush <- input$z_plot1Brush
     
+    if (is.null(brush)) {
+      pca_biplot()
+    } else {
+      pca_biplot() + coord_cartesian(xlim = c(brush$xmin, brush$xmax), ylim = c(brush$ymin, brush$ymax)) 
+    }
     
   })
   
+  #TODO: make this only output a list of points
   output$brush_info_after_zoom <- renderTable({
     # the brushing function
     brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)
