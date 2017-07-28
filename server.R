@@ -1,5 +1,8 @@
 # global items 
 
+#TODO: legend not displaying proper colors for points
+#TODO: allow to change shape of points - see here: https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+
 # check if pkgs are installed already, if not, install automatically:
 # (http://stackoverflow.com/a/4090208/1036500)
 list.of.packages <- c("ggplot2", 
@@ -371,33 +374,44 @@ server <- function(input, output) {
       grouping = 'None'
     }
     
-    #TODO: consolidate these two versions of the plot
     #TODO: separate the plot + legend since the legends can vary in size considerably
     
-    pc_plot <- ggplot(pcs_df)
+    if (grouping == 'None') {
+      pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
+                           input$the_pcs_to_plot_y))
+    } else {
+      pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
+      pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
+                                                   input$the_pcs_to_plot_y, 
+                                                   fill =  'fill_', 
+                                                   colour = 'fill_'))
+    }
+    
+    if (input$draw_ellipse) {
+      pc_plot = pc_plot + stat_ellipse(geom = "polygon", alpha = 0.1, inherit.aes = TRUE)
+    }
+    
+    if (input$label_points) {
+      pc_plot = pc_plot + geom_text(aes(label = labels),  size = 5)
+    } else {
+      pc_plot = pc_plot + geom_point(show.legend = TRUE, inherit.aes = TRUE)
+    }
     
     pc_plot <- pc_plot +
-      geom_point() +
-      theme_bw(base_size = 14) +
+      theme_bw(base_size = 14)
+
+    if (grouping != 'None') {
+      pc_plot <- pc_plot +
       scale_colour_discrete(guide = FALSE) +
       guides(fill = guide_legend(title = "groups")) +
-      theme(legend.position="top") +
+      theme(legend.position="top")
+    }
+      
+     pc_plot <- pc_plot +
       coord_equal() +
       xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
       ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
     
-    
-    if (grouping == 'None') {
-      pc_plot <- pc_plot + aes_string(input$the_pcs_to_plot_x, 
-                           input$the_pcs_to_plot_y)
-    } else {
-      fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
-      pc_plot <- pc_plot +  aes_string(input$the_pcs_to_plot_x, 
-                                                   input$the_pcs_to_plot_y, 
-                                                   fill =  'fill_', 
-                                                   colour = 'fill_')
-      + stat_ellipse(geom = "polygon", alpha = 0.1)
-    }
     
     pc_plot
     
@@ -489,7 +503,7 @@ server <- function(input, output) {
   #TODO: make this only output a list of points
   output$brush_info_after_zoom <- renderTable({
     # the brushing function
-    brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)
+    sample_names <- data.frame(sample_names=rownames(brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)))
   })
   
   output$pca_details <- renderPrint({
