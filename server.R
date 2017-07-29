@@ -341,7 +341,8 @@ server <- function(input, output) {
   })
   
   
-  
+  # TODO: make this only output up to 10 PCs
+  # TODO: add control for how many PCs to display
   output$plot2 <- renderPlot({
     pca_output <- pca_objects()$pca_output
     eig = (pca_output$sdev)^2
@@ -391,11 +392,11 @@ server <- function(input, output) {
     if (input$label_points) {
       pc_plot = pc_plot + geom_text(aes(label = labels),  size = 5)
     } else {
-      pc_plot = pc_plot + geom_point(show.legend = TRUE, inherit.aes = TRUE)
+      pc_plot = pc_plot + geom_point()
     }
     
     pc_plot <- pc_plot +
-      theme_bw(base_size = 14)
+      theme_gray(base_size = 14)
 
     if (grouping != 'None') {
       pc_plot <- pc_plot +
@@ -405,7 +406,10 @@ server <- function(input, output) {
     }
     
     if (input$draw_ellipse) {
-      pc_plot = pc_plot + stat_ellipse(geom = "polygon", alpha = 0.1, inherit.aes = TRUE, show.legend = FALSE)
+      pc_plot = pc_plot + stat_ellipse(geom = "polygon", 
+                                       alpha = 0.1, 
+                                       inherit.aes = TRUE, 
+                                       show.legend = FALSE)
     }
       
      pc_plot <- pc_plot +
@@ -504,8 +508,16 @@ server <- function(input, output) {
   #TODO: make this only output a list of points
   output$brush_info_after_zoom <- renderTable({
     # the brushing function
-    sample_names <- data.frame(sample_names=rownames(brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)))
-  })
+    #sample_names <- data.frame(sample_names=rownames(brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)))
+    
+    # get the pca metadata
+    the_metadata_subset <- pca_objects()$the_metadata
+    metadata_cols <- names(the_metadata_subset)
+    the_pca_data <- brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)
+    # now return only the columns from the pca data tha match the metadata colnames
+    the_pca_data[,metadata_cols]
+    
+      })
   
   output$pca_details <- renderPrint({
     #

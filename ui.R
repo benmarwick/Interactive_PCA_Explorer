@@ -156,7 +156,7 @@ ui <- fluidPage(
                                 resetOnNew = TRUE)),
                    tags$hr(),
                    p("Details of the brushed points"),
-                    tableOutput("brush_info_after_zoom")
+                  tableOutput("brush_info_after_zoom")
           ), # end  tab 
           
           tabPanel("Output",
