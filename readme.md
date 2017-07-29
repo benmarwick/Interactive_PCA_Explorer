@@ -62,4 +62,4 @@ Finally we have some of the raw output from the PCA.
 
 ## Feedback, contributing, etc.
 
-Please [open an issue](https://github.com/LJI-Bioinformatics/Interactive_PCA_Explorer/issues/new) if you find something that doesn't work as expected.
+Please [open an issue](https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker/issues/new) if you find something that doesn't work as expected.

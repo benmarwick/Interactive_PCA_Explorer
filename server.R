@@ -376,19 +376,16 @@ server <- function(input, output) {
     
     #TODO: separate the plot + legend since the legends can vary in size considerably
     
+    
     if (grouping == 'None') {
       pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
                            input$the_pcs_to_plot_y))
     } else {
       pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
       pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
-                                                   input$the_pcs_to_plot_y, 
-                                                   fill =  'fill_', 
-                                                   colour = 'fill_'))
-    }
-    
-    if (input$draw_ellipse) {
-      pc_plot = pc_plot + stat_ellipse(geom = "polygon", alpha = 0.1, inherit.aes = TRUE)
+                                           input$the_pcs_to_plot_y, 
+                                           fill =  'fill_', 
+                                           colour = 'fill_'))
     }
     
     if (input$label_points) {
@@ -402,9 +399,13 @@ server <- function(input, output) {
 
     if (grouping != 'None') {
       pc_plot <- pc_plot +
-      scale_colour_discrete(guide = FALSE) +
-      guides(fill = guide_legend(title = "groups")) +
+      scale_colour_discrete(name="groups") +
+      #guides(fill = guide_legend(title = "groups")) +
       theme(legend.position="top")
+    }
+    
+    if (input$draw_ellipse) {
+      pc_plot = pc_plot + stat_ellipse(geom = "polygon", alpha = 0.1, inherit.aes = TRUE, show.legend = FALSE)
     }
       
      pc_plot <- pc_plot +
