@@ -69,10 +69,22 @@ ui <- fluidPage(
                                   None=''
                                   ),
                                 "\"'")
-                  ))                    
+                  )),
+                  fluidRow(column(2,
+                          actionButton('validateButton',
+                                       'Validate Input'),
+                          offset = 5
+                  ))
                  ), # end file  tab
           
           tabPanel("Parameters",
+                   # commenting out the conditional portion; fix this
+                   #conditionalPanel(
+                  #   condition = "!output.validated",
+                   #  p("The input datasets have not yet been validated.  Please return to the 'Input' tab and try again")
+                   #),
+                   #conditionalPanel(
+                  #   condition = "output.validated",
                    fluidRow(column(4,
                    p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
                    checkboxInput(inputId = 'center',
@@ -91,7 +103,6 @@ ui <- fluidPage(
                p("The PCA is automatically re-computed each time you change your selection."),
                uiOutput("choose_samples_pca")
                    ))
-                   
           ), # end  tab
 
           # removed this functionality for minimal version - restore as time permits
@@ -141,9 +152,9 @@ ui <- fluidPage(
                                            value = TRUE),
                              checkboxInput(inputId = 'label_points',
                                            label = 'Use sample labels for data points',
-                                           value = FALSE),
-                             actionButton('resetZoomButton',
-                                          'Reset Zoom')
+                                           value = FALSE)
+                             # actionButton('resetZoomButton',
+                             #              'Reset Zoom')
                    )),
                    #tags$hr(),
                    fluidRow(column(8,

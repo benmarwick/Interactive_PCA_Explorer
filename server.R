@@ -27,6 +27,7 @@ server <- function(input, output) {
   # read in the CSV
   # this is reactive and should only change if the CSV file is changed
   the_data_fn <- reactive({
+    #output$validated <- 0
     inFile <- input$count_file
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = TRUE,
@@ -38,11 +39,11 @@ server <- function(input, output) {
     
     # sort the countData by row names for good measure
     the_data <- the_data[order(row.names(the_data)),]
-    # TODO: implement the ability to subselect samples/genes
     return(the_data)
   })
   
   the_metadata_fn <- reactive({
+    #output$validated <- 0
     inFile <- input$metadata_file
     if (is.null(inFile)) return(NULL)
     the_metadata <-   read.csv(inFile$datapath, header = TRUE,
@@ -526,6 +527,72 @@ server <- function(input, output) {
     summary(pca_objects()$pca_output)
     
   })
+  
+ 
+  # TODO: fix validataion; seemse we need to set output$validated to a function called 'validateInput'
+  # that may or may not be reactive.  call that function inside observeEvent?  Maybe?
+  
+  # Validate the input and set the 'input validated variable'
+observeEvent(input$validateButton, {
+    
+    the_data <- the_data_fn()
+    
+    num_rows <- length(the_data[,1])
+    num_cols <- length(the_data)
+    
+    # check if it is small
+    if (num_cols < 3) {
+      validationModal(msg=paste("Count dataset seems small with ", 
+                                num_rows, 
+                                " rows and ", 
+                                num_cols,
+                                " columns. Check that it is formatted correctly and the proper delimiter was selected and try again.  See the README for more information on the format."))
+    }
+    
+    # now load the metadata
+    the_metadata <- the_metadata_fn()
+    
+    num_rows <- length(the_metadata[,1])
+    num_cols <- length(the_metadata)
+    
+    # check if it is small
+    if (num_cols < 2) {
+      validationModal(msg=paste("Metadata dataset seems small with ", 
+                                num_rows, 
+                                " rows and ", 
+                                num_cols,
+                                " columns. Check that it is formatted correctly and the proper delimiter was selected and try again.  See the README for more information on the format."))
+    }
+    
+    # check that all samples from the count data are present in the metadata and vice versa
+    metadata_names <- rownames(the_metadata)
+    countdata_names <- names(the_data)
+    
+    countdata_missing_from_metadata <- !(countdata_names %in% metadata_names)
+    metadata_missing_from_countdata <- !(metadata_names %in% countdata_names)
+    
+    if (length(countdata_missing_from_metadata) > 0) {
+      missing_names_string = paste(countdata_missing_from_metadata, sep=",")
+      validationModal(msg=paste("Some sample names from the count data are missing from the metadata:\n", 
+                                missing_names_string, sep=""))
+    }
+    
+    if (length(metadata_missing_from_countdata) > 0) {
+      missing_names_string = paste(metadata_missing_from_countdata, sep=",")
+      validationModal(msg=paste("Some sample names from the metadata are missing from the countdata:\n", 
+                                missing_names_string, sep=""))
+    }
+    
+    #TODO:  if we get here, set the validated variable to TRUE
+
+  })
+  
+  validationModal <- function(msg = "") {
+    showModal(modalDialog(p(msg),
+      title = "Validation failed"
+    ))
+  }
+  
   
   # reset the zoom when the reset zoom button is presed
   observeEvent(input$resetZoomButton, {
