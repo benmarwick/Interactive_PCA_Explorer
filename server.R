@@ -311,11 +311,8 @@ server <- function(input, output) {
     pcs_df <- cbind(all_the_data_subset, pca_output$x)
     incProgress(0.1)
                  }) # end of withProgress
-    return(list(the_data = the_data, 
-                the_data_subset = the_data_subset,
-                pca_output = pca_output, 
+    return(list(pca_output = pca_output, 
                 pcs_df = pcs_df,
-                all_the_data = all_the_data_subset,
                 the_metadata = the_metadata_subset))
     
   })
@@ -459,22 +456,24 @@ server <- function(input, output) {
     
   })
   
-  output$brush_info <- renderTable({
-    # the brushing function
-    brushedPoints(pca_objects()$pcs_df, input$plot_brush)
-  })
+  #output$brush_info <- renderTable({
+  #  # the brushing function
+  #  brushedPoints(pca_objects()$pcs_df, input$plot_brush)
+  #})
   
   
   # for zooming
+  # TODO: determine how to to make the zoom/reset work in this plot instead of dividing the functionality
+  #       between two plots
   output$z_plot1 <- renderPlot({
     
-    brush <- input$z_plot1Brush
-    
-    if (is.null(brush)) {
+    # brush <- input$z_plot1Brush
+    # 
+    # if (is.null(brush)) {
       pca_biplot()
-    } else {
-      pca_biplot() + coord_cartesian(xlim = c(brush$xmin, brush$xmax), ylim = c(brush$ymin, brush$ymax)) 
-    }
+    # } else {
+    #   pca_biplot() + coord_cartesian(xlim = c(brush$xmin, brush$xmax), ylim = c(brush$ymin, brush$ymax)) 
+    # }
     
   })
   
@@ -515,7 +514,7 @@ server <- function(input, output) {
     # get the pca metadata
     the_metadata_subset <- pca_objects()$the_metadata
     metadata_cols <- names(the_metadata_subset)
-    the_pca_data <- brushedPoints(pca_objects()$pcs_df, input$z_plot1Brush)
+    the_pca_data <- brushedPoints(pca_objects()$pcs_df, input$z_plot2Brush)
     # now return only the columns from the pca data tha match the metadata colnames
     the_pca_data[,metadata_cols]
     
@@ -528,9 +527,11 @@ server <- function(input, output) {
     
   })
   
-  output$Colophon <- renderPrint({
+  # reset the zoom when the reset zoom button is presed
+  observeEvent(input$resetZoomButton, {
     
-    
+    #TODO: fill this out
+
   })
   
   

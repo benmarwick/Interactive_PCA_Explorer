@@ -141,18 +141,19 @@ ui <- fluidPage(
                                            value = TRUE),
                              checkboxInput(inputId = 'label_points',
                                            label = 'Use sample labels for data points',
-                                           value = FALSE)  
+                                           value = FALSE),
+                             actionButton('resetZoomButton',
+                                          'Reset Zoom')
                    )),
                    #tags$hr(),
-                   
+                   fluidRow(column(8,
                    #p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
-                   #problematic plots commented out below
-                   #plotOutput("z_plot2", height = 400,
-                   #           brush = brushOpts(
-                  #              id = "plot_brush_after_zoom",
-                  #              resetOnNew = TRUE)),
-                   tags$hr(),
-                   p("Details of the brushed points"),
+                  plotOutput("z_plot2", height = 400,
+                            brush = brushOpts(
+                               id = "z_plot2Brush",
+                               resetOnNew = TRUE))
+                   )),
+                   p("Details of the selected points"),
                   tableOutput("brush_info_after_zoom")
           ), # end  tab 
           
