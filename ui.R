@@ -121,15 +121,7 @@ ui <- fluidPage(
                    plotOutput("plot2", height = "300px"),
                    tags$hr(),
                    h2("PC plot: zoom and select points"),
-                   p("Select the grouping variable."),
-                   p("Only variables where the number of unique values is less than 10% of the total number of observations are shown here (because seeing groups with 1-2 observations is usually not very useful)."),
-                   uiOutput("the_grouping_variable"),
-                   tags$hr(),
-                   p("Select the PCs to plot"),
-                   uiOutput("the_pcs_to_plot_x"),
-                   uiOutput("the_pcs_to_plot_y"),
-                   tags$hr(),
-
+                   #p("Only variables where the number of unique values is less than 10% of the total number of observations are shown here (because seeing groups with 1-2 observations is usually not very useful)."),
                    p("Click and drag on the first plot below to zoom into a region on the plot. Or you can go directly to the second plot below to select points to get more information about them."),
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
@@ -139,6 +131,11 @@ ui <- fluidPage(
                                   id = "z_plot1Brush",
                                   resetOnNew = TRUE))
                    ), column(4,
+                             p("Select the grouping variable."),
+                             uiOutput("the_grouping_variable"),
+                             p("Select the PCs to plot"),
+                             uiOutput("the_pcs_to_plot_x"),
+                             uiOutput("the_pcs_to_plot_y"),
                              checkboxInput(inputId = 'draw_ellipse',
                                            label = 'Draw ellipse around groups',
                                            value = TRUE),
@@ -146,14 +143,14 @@ ui <- fluidPage(
                                            label = 'Use sample labels for data points',
                                            value = FALSE)  
                    )),
-                   tags$hr(),
+                   #tags$hr(),
                    
-                   p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
+                   #p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
                    #problematic plots commented out below
-                   plotOutput("z_plot2", height = 400,
-                              brush = brushOpts(
-                                id = "plot_brush_after_zoom",
-                                resetOnNew = TRUE)),
+                   #plotOutput("z_plot2", height = 400,
+                   #           brush = brushOpts(
+                  #              id = "plot_brush_after_zoom",
+                  #              resetOnNew = TRUE)),
                    tags$hr(),
                    p("Details of the brushed points"),
                   tableOutput("brush_info_after_zoom")

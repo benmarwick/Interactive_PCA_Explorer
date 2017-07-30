@@ -240,7 +240,7 @@ server <- function(input, output) {
     
     # drop down selection
     selectInput(inputId = "the_grouping_variable", 
-                label = "Grouping variable:",
+                label = "Color by:",
                 choices=c("None", the_data_group_cols))
     
   })
@@ -377,15 +377,13 @@ server <- function(input, output) {
     
     #TODO: separate the plot + legend since the legends can vary in size considerably
     
-    
     if (grouping == 'None') {
       pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
                            input$the_pcs_to_plot_y))
     } else {
       pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
       pc_plot <<- ggplot(pcs_df,aes_string(input$the_pcs_to_plot_x, 
-                                           input$the_pcs_to_plot_y, 
-                                           fill =  'fill_', 
+                                           input$the_pcs_to_plot_y,
                                            colour = 'fill_'))
     }
     
@@ -401,14 +399,13 @@ server <- function(input, output) {
     if (grouping != 'None') {
       pc_plot <- pc_plot +
       scale_colour_discrete(name="groups") +
-      #guides(fill = guide_legend(title = "groups")) +
       theme(legend.position="top")
     }
     
     if (input$draw_ellipse) {
-      pc_plot = pc_plot + stat_ellipse(geom = "polygon", 
+      pc_plot = pc_plot + stat_ellipse(aes(fill='fill_'),
+                                       geom = "polygon",
                                        alpha = 0.1, 
-                                       inherit.aes = TRUE, 
                                        show.legend = FALSE)
     }
       
@@ -471,7 +468,13 @@ server <- function(input, output) {
   # for zooming
   output$z_plot1 <- renderPlot({
     
-    pca_biplot() 
+    brush <- input$z_plot1Brush
+    
+    if (is.null(brush)) {
+      pca_biplot()
+    } else {
+      pca_biplot() + coord_cartesian(xlim = c(brush$xmin, brush$xmax), ylim = c(brush$ymin, brush$ymax)) 
+    }
     
   })
   
@@ -505,7 +508,6 @@ server <- function(input, output) {
     
   })
   
-  #TODO: make this only output a list of points
   output$brush_info_after_zoom <- renderTable({
     # the brushing function
     #sample_names <- data.frame(sample_names=rownames(brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)))
@@ -513,7 +515,7 @@ server <- function(input, output) {
     # get the pca metadata
     the_metadata_subset <- pca_objects()$the_metadata
     metadata_cols <- names(the_metadata_subset)
-    the_pca_data <- brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)
+    the_pca_data <- brushedPoints(pca_objects()$pcs_df, input$z_plot1Brush)
     # now return only the columns from the pca data tha match the metadata colnames
     the_pca_data[,metadata_cols]
     
