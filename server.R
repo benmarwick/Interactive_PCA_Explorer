@@ -1,6 +1,5 @@
 # global items 
 
-#TODO: legend not displaying proper colors for points
 #TODO: allow to change shape of points - see here: https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 
 # check if pkgs are installed already, if not, install automatically:
@@ -53,7 +52,6 @@ server <- function(input, output) {
     the_metadata <- the_metadata[order(row.names(the_metadata)),]
     # make each column a factor
     the_metadata[1:length(the_metadata)] <- as.data.frame(lapply(the_metadata,factor))
-    # TODO: implement the ability to subselect metadata
     return(the_metadata)
   })
   
@@ -74,15 +72,6 @@ server <- function(input, output) {
     
   }
   
-  # removed this functionality for minimal version - restore as time permits
-  # tableplot
-  # output$tableplot <- renderPlot({
-  #   if(is.null(the_data_fn())) return()
-  #   the_data <- the_data_fn()
-  #   tabplot::tableplot(the_data)
-  #   
-  # })
-  
   # display a table of the CSV contents
   output$contents <-  DT::renderDataTable({
     #
@@ -95,55 +84,6 @@ server <- function(input, output) {
     psych::describe(the_data)
     cat(file=stderr(),"past describe")
   })
-  
-  # removed this functionality for minimal version - restore as time permits
-  # # Check boxes to choose columns
-  # output$choose_columns_biplot <- renderUI({
-  #   
-  #   the_data <- the_data_fn()
-  #   
-  #   colnames <- names(the_data)
-  #   
-  #   # Create the checkboxes and select them all by default
-  #   checkboxGroupInput("columns_biplot", "Choose up to five columns to display on the scatterplot matrix",
-  #                      # TODO: fix this
-  #                      # use the columns that are factors as choices
-  #                      #choices = get_factors(),
-  #                      choices  = colnames,
-  #                      selected = colnames[1:5])
-  # })
-  # 
-  # # corr plot
-  # output$corr_plot <- renderPlot({
-  #   the_data <- the_data_fn()
-  #   # Keep the selected columns
-  #   columns_biplot <-    input$columns_biplot
-  #   the_data_subset_biplot <- the_data[, columns_biplot, drop = FALSE]
-  #   ggpairs(the_data_subset_biplot)
-  #    })
-  # 
-  # # corr tables
-  # output$corr_tables <- renderTable({
-  #   the_data <- the_data_fn()
-  #   # we only want to show numeric cols
-  #   the_data_num <- the_data[,sapply(the_data,is.numeric)]
-  #   # exclude cols with zero variance
-  #   the_data_num <- the_data_num[,!apply(the_data_num, MARGIN = 2, function(x) max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-  #   
-  #   
-  #     res <- Hmisc::rcorr(as.matrix(the_data_num))
-  #     cormat <- res$r
-  #     pmat <- res$P
-  #     ut <- upper.tri(cormat)
-  #    df <- data.frame(
-  #       row = rownames(cormat)[row(cormat)[ut]],
-  #       column = rownames(cormat)[col(cormat)[ut]],
-  #       cor  = (cormat)[ut],
-  #       p = pmat[ut]
-  #     )
-  #    with(df, df[order(-cor), ])
-  #   
-  # })
   
   output$bartlett <- renderPrint({
     the_data <- the_data_fn()
@@ -217,9 +157,6 @@ server <- function(input, output) {
     
   }) 
   
-  
-  #commented this sectio nout as we will use all columns (Genes)
-  #add a new section on picking the rows (samples to exclude)
   # Check boxes to choose columns
   output$choose_samples_pca <- renderUI({
     
@@ -265,7 +202,6 @@ server <- function(input, output) {
       samples <- rownames(the_data)
     }
     
-    #the_data_subset <- the_data
     # TODO: move this into 'the_data_fn' or somehow allow for normalization to not have to be recalculated each time any of the PCA
     #       parameters is changed...although maybe it should?
     the_data_subset <- the_data[which(rownames(the_data) %in% samples), ]
@@ -359,7 +295,6 @@ server <- function(input, output) {
       ylim(0,(max(eig_df$eig) * 1.1))
   })
   
-  
   # PC plot
   pca_biplot <- reactive({
     pcs_df <- pca_objects()$pcs_df
@@ -414,56 +349,9 @@ server <- function(input, output) {
     
     
     pc_plot
-    
-    # if(grouping == 'None'){
-    #   # plot without grouping variable
-    #   pc_plot_no_groups  <- ggplot(pcs_df, 
-    #                                aes_string(input$the_pcs_to_plot_x, 
-    #                                           input$the_pcs_to_plot_y
-    #                                )) +
-    #     
-    #     geom_point() +
-    #     #geom_text(aes(label = labels),  size = 5) +
-    #     theme_bw(base_size = 14) +
-    #     coord_equal() +
-    #     xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-    #     ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
-    #   # the plot
-    #   pc_plot_no_groups
-    #   
-    #   
-    # } else {
-    #   # plot with grouping variable
-    #   
-    #   pcs_df$fill_ <-  as.character(pcs_df[, grouping, drop = TRUE])
-    #   pc_plot_groups  <- ggplot(pcs_df, aes_string(input$the_pcs_to_plot_x, 
-    #                                                input$the_pcs_to_plot_y, 
-    #                                                fill = 'fill_', 
-    #                                                colour = 'fill_'
-    #   )) +
-    #     stat_ellipse(geom = "polygon", alpha = 0.1) +
-    #     geom_point() +
-    #     theme_bw(base_size = 14) +
-    #     scale_colour_discrete(guide = FALSE) +
-    #     guides(fill = guide_legend(title = "groups")) +
-    #     theme(legend.position="top") +
-    #     coord_equal() +
-    #     xlab(paste0(input$the_pcs_to_plot_x, " (", var_expl_x, "% explained variance)")) +
-    #     ylab(paste0(input$the_pcs_to_plot_y, " (", var_expl_y, "% explained variance)")) 
-    #   # the plot
-    #   pc_plot_groups
-    # }
-    
-    
   })
-  
-  #output$brush_info <- renderTable({
-  #  # the brushing function
-  #  brushedPoints(pca_objects()$pcs_df, input$plot_brush)
-  #})
-  
-  
-  # for zooming
+    
+  # This is the main PCA biplot
   # TODO: determine how to to make the zoom/reset work in this plot instead of dividing the functionality
   #       between two plots
   output$z_plot1 <- renderPlot({
@@ -477,24 +365,8 @@ server <- function(input, output) {
     # }
     
   })
-  
-  # commented out and replaced by calling brushes directly
-  # # zoom ranges
-  # zooming <- reactiveValues(x = NULL, y = NULL)
-  # 
-  # observe({
-  #   brush <- input$z_plot1Brush
-  #   if (!is.null(brush)) {
-  #     zooming$x <- c(brush$xmin, brush$xmax)
-  #     zooming$y <- c(brush$ymin, brush$ymax)
-  #   }
-  #   else {
-  #     zooming$x <- NULL
-  #     zooming$y <- NULL
-  #   }
-  # })
-  
-  
+
+  # This is the zoomed in plot  
   # for zooming
   output$z_plot2 <- renderPlot({
     
@@ -509,9 +381,6 @@ server <- function(input, output) {
   })
   
   output$brush_info_after_zoom <- renderTable({
-    # the brushing function
-    #sample_names <- data.frame(sample_names=rownames(brushedPoints(pca_objects()$pcs_df, input$plot_brush_after_zoom)))
-    
     # get the pca metadata
     the_metadata_subset <- pca_objects()$the_metadata
     metadata_cols <- names(the_metadata_subset)
@@ -529,7 +398,7 @@ server <- function(input, output) {
   })
   
  
-  # TODO: fix validataion; seemse we need to set output$validated to a function called 'validateInput'
+  # TODO: fix validataion; seems we need to set output$validated to a function called 'validateInput'
   # that may or may not be reactive.  call that function inside observeEvent?  Maybe?
   
   # Validate the input and set the 'input validated variable'
