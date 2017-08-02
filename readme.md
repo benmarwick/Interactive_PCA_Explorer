@@ -63,3 +63,7 @@ Finally we have some of the raw output from the PCA.
 ## Feedback, contributing, etc.
 
 Please [open an issue](https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker/issues/new) if you find something that doesn't work as expected.
+
+## License
+
+This code is licensed under the [GPL v3.0](https://www.gnu.org/licenses/gpl.html).  Aternative, commercial-friendly licenses available upon request.
