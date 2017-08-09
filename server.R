@@ -21,12 +21,15 @@ lapply(list.of.packages, require, character.only = TRUE)
 # updating the max upload size to 1GB
 options(shiny.maxRequestSize=1024*1024^2)
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  # initialize the output validated flag to 0
+  data.validated <- reactiveVal(0)
   
   # read in the CSV
   # this is reactive and should only change if the CSV file is changed
   the_data_fn <- reactive({
-    #output$validated <- 0
+    validated <- 0
     inFile <- input$count_file
     if (is.null(inFile)) return(NULL)
     the_data <-   read.csv(inFile$datapath, header = TRUE,
@@ -42,7 +45,7 @@ server <- function(input, output) {
   })
   
   the_metadata_fn <- reactive({
-    #output$validated <- 0
+    validated <- 0
     inFile <- input$metadata_file
     if (is.null(inFile)) return(NULL)
     the_metadata <-   read.csv(inFile$datapath, header = TRUE,
@@ -435,10 +438,15 @@ observeEvent(input$validateButton, {
     
     # check that all samples from the count data are present in the metadata and vice versa
     metadata_names <- rownames(the_metadata)
-    countdata_names <- names(the_data)
+    countdata_names <- rownames(the_data)
     
-    countdata_missing_from_metadata <- !(countdata_names %in% metadata_names)
-    metadata_missing_from_countdata <- !(metadata_names %in% countdata_names)
+    countdata_missing_from_metadata <- countdata_names[!(countdata_names %in% metadata_names)]
+    metadata_missing_from_countdata <- metadata_names[!(metadata_names %in% countdata_names)]
+    
+    print('cmfm:')
+    print(countdata_missing_from_metadata)
+    print('mmfc')
+    print(metadata_missing_from_countdata)
     
     if (length(countdata_missing_from_metadata) > 0) {
       missing_names_string = paste(countdata_missing_from_metadata, sep=",")
@@ -452,7 +460,10 @@ observeEvent(input$validateButton, {
                                 missing_names_string, sep=""))
     }
     
-    #TODO:  if we get here, set the validated variable to TRUE
+    #TODO:  if we get here, set the validated variable to 1
+    validated <- 1
+    
+    validationModal(msg="Input looks good!")
 
   })
   
