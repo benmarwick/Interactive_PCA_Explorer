@@ -79,12 +79,13 @@ ui <- fluidPage(
           
           tabPanel("Parameters",
                    # commenting out the conditional portion; fix this
-                   # conditionalPanel(
-                   #   condition = "output.validated == '0'",
-                   #   p("The input datasets have not yet been validated.  Please return to the 'Input' tab and try again")
-                   # ),
-                   # conditionalPanel(
-                   #   condition = "output.validated == '1'",
+                    #verbatimTextOutput("validated"),
+                    #conditionalPanel(
+                    #  condition = "output.validated == '0'",
+                    #  p("The input datasets have not yet been validated.  Please return to the 'Input' tab and try again")
+                    #),
+                    #conditionalPanel(
+                    #  condition = "output.validated == '1'",
                    fluidRow(column(4,
                    p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
                    checkboxInput(inputId = 'center',
