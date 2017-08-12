@@ -1,14 +1,14 @@
 # Shiny PCA Maker
 
-This [Shiny](http://shiny.rstudio.com/) application takes a CSV file of clean data and a CSV of metadata, allows you to select a few parameters to compute a Principal Components Analysis, and will return several diagnostic plots and tables. The plots include a scree plot, and a biplot of Principal Components.
+This [Shiny](http://shiny.rstudio.com/) application takes a CSV file of count/expression data and a CSV of metadata, allows you to select a few parameters to compute a Principal Components Analysis, returning several diagnostic plots and tables. The plots include a scree plot and a biplot of Principal Components.
 
-You can chose which columns to include in the PCA, and which column to use as a grouping variable. You can choose to center, scale, or normalize (via rlog or vst). You can choose which PCs to include on the biplot.
+You can chose which columns to include in the PCA, and which column to use as a grouping variable for coloring. You can choose to center, scale, or normalize (via rlog or vst). You can choose which PCs to include on the biplot.
 
 The biplot of PCs is interactive, so you can click on points or select points and inspect the details of those points in a table. 
 
 ## How to run or install
 
-There are two ways to run/install this app.
+There are several ways to run/install this app.
 
 First, you can run it on your computer like so:
 
@@ -22,12 +22,18 @@ Second, you can clone this repo to have the code on your computer, and run the a
 
 ```
 # First clone the repository with git. If you have cloned it into
-# ~/shiny-pca-maker, first change your working directory to ~/shiny-pca-maker, then use runApp() to start the app.
+# ~/shiny-pca-maker, change your working directory to ~/shiny-pca-maker, then use runApp() to start the app.
 setwd("~/shiny-pca-maker") # change to match where you downloaded this repo to
 runApp() # runs the app 
 ```
 
-This app depends on several R packages (ggplot2, DT, GGally, psych, Hmisc, MASS, tabplot). The app will check to see if you have them installed, and if you don't, it will try to download and install them for you.
+This app depends on several R packages (ggplot2, DT, GGally, psych, Hmisc, MASS, tabplot, DESeq2). The app will not check to see if you have them installed, so please take care of this before using.  They can be installed with the following commands:
+
+```
+install.packages(c('ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot')
+source("https://bioconductor.org/biocLite.R")
+biocLite('DESeq2')
+```
 
 ## How to use
 

@@ -5,21 +5,21 @@ ui <- fluidPage(
         tabsetPanel(
           
           tabPanel("Input",
+                   fluidRow(column(4,
                    p("Count matrix and metadata must be uploaded separately.  Count matrices will have rows as genes (or some other feature),
-                      and columns as samples. The values of the cells are the 'counts', which can be provided as raw or normalized.  An example
-                      file is here.  Metadata files are provided with columns as conditions/phenotypes/other and rows as samples.  The first column
-                      must include the sample names that match the sample names from the count matrix file. An example metadata file, matching the
-                     count data file is here."),
+                      and columns as samples. The values of the cells are the 'counts' or some other measure of expression, which can be provided as raw or normalized.
+                      Metadata files are provided with columns as conditions/phenotypes/other and rows as samples.  The first column
+                      must include the sample names that match the sample names from the count matrix file. Examples below are taken from ",
+                     a("GSE81741.", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE81741")
+                     ),
                    p("Before uploading your data, check that it is clean, especially ensure that
                      the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
                    p("Rows that contain one or more NAs will be excluded from the PCA."),
-                   p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results."),
-                   # TODO: replace this example, as it won't work with this version
-                   p("Have a look at the ", a("iris.csv", href = "./iris.csv"),  " file included with this app to see what a clean CSV file looks like."),
-                   tags$hr(),
-                   p("Select the options that match your files:"),
-                   fluidRow(column(6,
-                   h3('Count Matrix Input'),
+                   p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results.")
+                   ),
+                   column(4,
+                   h3('Count Matrix'),
+                   a("(Count file example)", href= "./GSE81741.counts.tsv"),
                    fileInput('count_file', 'Choose a file:',
                              accept = c(
                                'text/csv',
@@ -44,8 +44,9 @@ ui <- fluidPage(
                                   None=''
                                 ),
                                 "\"'")
-                   ),column(6,
-                   h3('Metadata Input'),
+                   ),column(4,
+                   h3('Metadata'),
+                   a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
                    fileInput('metadata_file', 'Choose a file:',
                              accept = c(
                                'text/csv',
@@ -167,7 +168,7 @@ ui <- fluidPage(
           tabPanel("License",
                    p("The code for this Shiny app is online at ", a("https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker"), ". Please post any feedback, question, etc. as an ", a("issue on github", href = "https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker/issues/new"), "."),
                    p("The code for this Shiny app was forked from ", a("https://github.com/benmarwick/Interactive_PCA_Explorer")), 
-                   p("The text is licensed ", a("CC-BY", href = "http://creativecommons.org/licenses/by/4.0/"), " and the code ", a(href = "https://opensource.org/licenses/MIT", "MIT"), ".")
+                   p("The text is licensed ", a("CC-BY", href = "http://creativecommons.org/licenses/by/4.0/"), " and the code ", a(href = "https://opensource.org/licenses/GPL-3.0", "GPL-3.0"), ".")
                    
                    
           ) # end  tab 
