@@ -14,10 +14,13 @@ list.of.packages <- c("ggplot2",
 
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
-#if(length(new.packages)) install.packages(new.packages)
-
+if(length(new.packages)) {
+   #throw an error
+  plist <- paste(new.packages, sep=",")
+   stop(paste("The following packages are not installed: ", plist, "\n", sep=""))
+}
 # load all these
-lapply(list.of.packages, require, character.only = TRUE)
+lapply(list.of.packages, library, character.only = TRUE)
 
 # updating the max upload size to 1GB
 options(shiny.maxRequestSize = 1024 * 1024 ^ 2)

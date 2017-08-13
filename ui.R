@@ -5,19 +5,22 @@ ui <- fluidPage(
         tabsetPanel(
           
           tabPanel("Input",
-                   fluidRow(column(4,
+                   checkboxInput("input_show_help", label = 'Show help text', value = FALSE),
+                   conditionalPanel(condition="input.input_show_help==true",
                    p("Count matrix and metadata must be uploaded separately.  Count matrices will have rows as genes (or some other feature),
                       and columns as samples. The values of the cells are the 'counts' or some other measure of expression, which can be provided as raw or normalized.
                       Metadata files are provided with columns as conditions/phenotypes/other and rows as samples.  The first column
                       must include the sample names that match the sample names from the count matrix file. Examples below are taken from ",
                      a("GSE81741.", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE81741")
                      ),
+                   p("After count and metadata files are selected, click the 'Validate' button before continuing to the remaining tabs."),
                    p("Before uploading your data, check that it is clean, especially ensure that
                      the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
                    p("Rows that contain one or more NAs will be excluded from the PCA."),
                    p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results.")
-                   ),
-                   column(4,
+                   ), # end conditionalPanel
+                   fluidRow(
+                   column(6,
                    h3('Count Matrix'),
                    a("(Count file example)", href= "./GSE81741.counts.tsv"),
                    fileInput('count_file', 'Choose a file:',
@@ -34,8 +37,31 @@ ui <- fluidPage(
                                   Comma=',',
                                   Semicolon=';'
                                   ),
-                                '\t'),
-          
+                                '\t')
+                   ), # end column 1
+                   column(6,
+                          h3('Metadata'),
+                          a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
+                          fileInput('metadata_file', 'Choose a file:',
+                                    accept = c(
+                                      'text/csv',
+                                      'text/comma-separated-values',
+                                      'text/tab-separated-values',
+                                      'text/plain',
+                                      '.csv',
+                                      '.tsv'
+                                    )),
+                          radioButtons('metadata_sep', 'Separator',
+                                       c(Tab='\t',
+                                         Comma=',',
+                                         Semicolon=';'),
+                                       '\t')
+                   ) # end column 2
+                   ), # end fluidRow
+                   checkboxInput("input_count_addl_options", label = 'Show additional options', value = FALSE),
+                   conditionalPanel(condition="input.input_count_addl_options==true",
+                   fluidRow(
+                   column(6,
                    radioButtons('count_quote', 'Quotes around strings',
                                 c(
                                   'Both'="\"'",
@@ -44,24 +70,7 @@ ui <- fluidPage(
                                   None=''
                                 ),
                                 "\"'")
-                   ),column(4,
-                   h3('Metadata'),
-                   a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
-                   fileInput('metadata_file', 'Choose a file:',
-                             accept = c(
-                               'text/csv',
-                               'text/comma-separated-values',
-                               'text/tab-separated-values',
-                               'text/plain',
-                               '.csv',
-                               '.tsv'
-                             )),
-                   radioButtons('metadata_sep', 'Separator',
-                                c(Tab='\t',
-                                  Comma=',',
-                                  Semicolon=';'),
-                                '\t'),
-                   
+                   ),column(6,
                    radioButtons('metadata_quote', 'Quotes around strings',
                                 c(
                                   'Both'="\"'",
@@ -70,12 +79,12 @@ ui <- fluidPage(
                                   None=''
                                   ),
                                 "\"'")
-                  )),
+                  ) # end column 2
+                  ) # end fluidRow
+                   ), # end conditionalPanel
                   fluidRow(column(2,
                           actionButton('validateButton',
-                                       'Validate Input'),
-                          offset = 5
-                  ))
+                                       'Validate Input')))
                  ), # end file  tab
           
           tabPanel("Parameters",
@@ -87,7 +96,7 @@ ui <- fluidPage(
                     #),
                     #conditionalPanel(
                     #  condition = "output.validated == '1'",
-                   fluidRow(column(4,
+                   fluidRow(column(6,
                    p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
                    checkboxInput(inputId = 'center',
                                  label = 'Shift variables to be zero-centered',
@@ -100,7 +109,7 @@ ui <- fluidPage(
                                             'Variance Stabilizing Transform (vst)'='vst', 
                                             'Regularized logarithm (rlog) - WARNING: this can take considerable time'='rlog'), 
                                 selected = 'NONE')
-                   ),column(4,
+                   ),column(6,
                p("Choose the samples to include in the PCA."),
                p("The PCA is automatically re-computed each time you change your selection."),
                uiOutput("choose_samples_pca")

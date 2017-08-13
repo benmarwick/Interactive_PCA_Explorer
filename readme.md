@@ -12,19 +12,33 @@ There are several ways to run/install this app.
 
 ### Running from Github
 
-If you have R and all of the prerequisites installed, you can run it directly from Github like so:
+If you have R/RStudio and all of the prerequisites installed (see below for dependency installation), you can run it directly from Github like so:
 
 ```
 library(shiny)
-runGitHub("shiny-pca-maker", "LJI-Bioinformatics")
-
+runGitHub("shiny-pca-maker", "LJI-Bioinformatics", launch.browser = TRUE)
 ```
 
-### Running locally with Docker
+### Running locally
 
-If you have docker installed, you can start a docker container to run the server:
+There are multiple ways to run locally, including with Docker or directly in R/RStudio.  Both require you to clone the git repository to your machine:
 
 ```
+git clone https://github.com/LJI-Bioinformatics/Shiny-PCA-Maker.git LOCAL_DIR
+```
+
+Replace LOCAL_DIR with the directory into which you would like to clone.  For the rest of this README, we will assume it is in your home directory, at:
+
+```
+~/Shiny-PCA-Maker
+```
+
+#### Running locally with Docker
+
+If you have [Docker](https://www.docker.com/) installed, you can start a container to run the server:
+
+```
+cd ~/Shiny-PCA-Maker
 sh docker_start.sh
 ```
 
@@ -34,37 +48,35 @@ http://localhost:3838
 
 
 To stop the server:
+
 ```
+cd ~/Shiny-PCA-Maker
 sh docker_stop.sh
 ```
 
-### Running locally with R/RStudio
+#### Running locally with R/RStudio
 
-You can clone this repo to have the code on your computer, and run the app from there, like so:
-
-```
-# First clone the repository with git. If you have cloned it into
-# ~/shiny-pca-maker, change your working directory to ~/shiny-pca-maker, then use runApp() to start the app.
-setwd("~/shiny-pca-maker") # change to match where you downloaded this repo to
-runApp() # runs the app 
-```
-
-This method, as well as running from Gitub, require that several dependencies are installed on you machine.
-
-## Dependency installation
-
-If running from Github or locally with R/RStudio, you can install the dependencies with the
-following commands:
+To run this app directly from your R/RStudio installation, first ensure that dependencies are installed (as described below).  Open up R/RStudio and type:
 
 ```
-install.packages(c('ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot')
+setwd("~/Shiny-PCA-Maker")
+runApp(launch.browser = TRUE) 
+```
+
+### Dependency installation
+
+If running from Github or locally with R/RStudio, you can install the dependencies with
+the following commands:
+
+```
+install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot')
 source("https://bioconductor.org/biocLite.R")
 biocLite('DESeq2')
 ```
 
 ## How to use
 
-Start on the first (left-most) tab to upload your count and metadata files, then click on each tab, in order from left to right, to see the results.
+Start on the first (left-most) tab to upload/validate your count and metadata files, then click on each tab, in order from left to right, to see the results.
 
 ## Feedback, contributing, etc.
 
