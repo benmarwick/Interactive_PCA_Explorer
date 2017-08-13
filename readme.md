@@ -10,7 +10,9 @@ The biplot of PCs is interactive, so you can click on points or select points an
 
 There are several ways to run/install this app.
 
-First, you can run it on your computer like so:
+### Running from Github
+
+If you have R and all of the prerequisites installed, you can run it directly from Github like so:
 
 ```
 library(shiny)
@@ -18,7 +20,27 @@ runGitHub("shiny-pca-maker", "LJI-Bioinformatics")
 
 ```
 
-Second, you can clone this repo to have the code on your computer, and run the app from there, like so:
+### Running locally with Docker
+
+If you have docker installed, you can start a docker container to run the server:
+
+```
+sh docker_start.sh
+```
+
+This will start a server at port 3838, which you can reach from your browser at:
+
+http://localhost:3838
+
+
+To stop the server:
+```
+sh docker_stop.sh
+```
+
+### Running locally with R/RStudio
+
+You can clone this repo to have the code on your computer, and run the app from there, like so:
 
 ```
 # First clone the repository with git. If you have cloned it into
@@ -27,7 +49,12 @@ setwd("~/shiny-pca-maker") # change to match where you downloaded this repo to
 runApp() # runs the app 
 ```
 
-This app depends on several R packages (ggplot2, DT, GGally, psych, Hmisc, MASS, tabplot, DESeq2). The app will not check to see if you have them installed, so please take care of this before using.  They can be installed with the following commands:
+This method, as well as running from Gitub, require that several dependencies are installed on you machine.
+
+## Dependency installation
+
+If running from Github or locally with R/RStudio, you can install the dependencies with the
+following commands:
 
 ```
 install.packages(c('ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot')
@@ -37,34 +64,7 @@ biocLite('DESeq2')
 
 ## How to use
 
-Start on the first (left-most) tab to upload your CSV files, then click on each tab, in order from left to right, to see the results.
-
-## Screenshots
-
-Here's what it looks like. Here we have input a CSV file that contain the [iris data](https://en.wikipedia.org/wiki/Iris_flower_data_set) (included with this app).
-
-![](figures/001_input.png)   
-
-Then we can see some simple descriptions of the data, and the raw data at the bottom of the page.   
-
-
-
-Below we have a few popular diagnostic tests that many people like to do before doing a PCA. They're not very informative and can be skipped, but people coming from SPSS might feel more comfortable if they can see them here also. 
-
-![](figures/004_diag.png)   
-
-Below are the options for computing the PCA. We can choose which columns to include, and a few details about the PCA function. We are using the [prcomp](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html) function to compute the PCA. 
-
-![](figures/005_compute.png)    
-
-Here are the classic PCA plots. First is the scree plot summarizing how important the first few PCs are. Second is the interactive PC biplot. You can see that I've used my mouse to draw a rectangle around a few of the points in the biplot (this is called 'brushing') and in the table below we can see the details of those points in the selected area. We can choose which column to use for grouping (this only affects the colouring of the plot, it doesn't change the PCA results), and we can choose which PCs to show on the plot. 
-
-![](figures/006_pca_plots.png)
-
-Finally we have some of the raw output from the PCA.
-
-![](figures/007_pca_output.png)
-
+Start on the first (left-most) tab to upload your count and metadata files, then click on each tab, in order from left to right, to see the results.
 
 ## Feedback, contributing, etc.
 
