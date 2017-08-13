@@ -69,7 +69,7 @@ If running from Github or locally with R/RStudio, you can install the dependenci
 the following commands:
 
 ```
-install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot')
+install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot'))
 source("https://bioconductor.org/biocLite.R")
 biocLite('DESeq2')
 ```
@@ -77,6 +77,18 @@ biocLite('DESeq2')
 ## How to use
 
 Start on the first (left-most) tab to upload/validate your count and metadata files, then click on each tab, in order from left to right, to see the results.
+
+### Input data
+
+This tool requires two input files:
+
+#### Count Matrix
+
+This is a matrix of counts/expression values where the rows are genes/features and the columns are samples.  The names of the columns are the sample names and they must correspond to the row names of the metadata (described below).  The format is similar to what would be accepted for the 'expr' slot of a [Bioconductor ExpressionSet](http://www.bioconductor.org/packages/release/bioc/vignettes/Biobase/inst/doc/ExpressionSetIntroduction.pdf).  Here is an [example count matrix](www/GSE81741.counts.tsv).
+
+#### Metadata
+
+This file should contain one row per sample and have columns that indicate properties of interest.  These will be the variables by which the PCA plots can be colored.  The format is similar to what would be accepted for the 'phenoData' slot of a [Bioconductor ExpressionSet](http://www.bioconductor.org/packages/release/bioc/vignettes/Biobase/inst/doc/ExpressionSetIntroduction.pdf).  Here is an [example metadata file](www/GSE81741.metadata.tsv).
 
 ## Feedback, contributing, etc.
 
