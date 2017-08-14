@@ -31,7 +31,8 @@ ui <- fluidPage(
                                'text/plain',
                                '.csv',
                                '.tsv'
-                             )),
+                             ),
+                             placeholder = ""),
                    radioButtons('count_sep', 'Separator',
                                 c(Tab='\t',
                                   Comma=',',
@@ -50,7 +51,8 @@ ui <- fluidPage(
                                       'text/plain',
                                       '.csv',
                                       '.tsv'
-                                    )),
+                                    ),
+                                    placeholder = ""),
                           radioButtons('metadata_sep', 'Separator',
                                        c(Tab='\t',
                                          Comma=',',
@@ -121,6 +123,7 @@ ui <- fluidPage(
                    h2("Scree plot"),
                    p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
                    plotOutput("plot2", height = "300px"),
+                   uiOutput("pc_range"),
                    tags$hr(),
                    h2("PC plot: zoom and select points"),
                    #p("Only variables where the number of unique values is less than 10% of the total number of observations are shown here (because seeing groups with 1-2 observations is usually not very useful)."),
@@ -128,9 +131,9 @@ ui <- fluidPage(
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
                    fluidRow(column(8,
-                   plotOutput ("z_plot1", height = 400,
+                   plotOutput ("PCA_PLOT", height = 400,
                                 brush = brushOpts(
-                                  id = "z_plot1Brush",
+                                  id = "PCA_PLOTBrush",
                                   resetOnNew = TRUE))
                    ), column(4,
                              p("Select the grouping variable."),
@@ -150,9 +153,9 @@ ui <- fluidPage(
                    #tags$hr(),
                    fluidRow(column(8,
                    #p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
-                  plotOutput("z_plot2", height = 400,
+                  plotOutput("ZOOMED_PLOT", height = 400,
                             brush = brushOpts(
-                               id = "z_plot2Brush",
+                               id = "ZOOMED_PLOTBrush",
                                resetOnNew = TRUE))
                    )),
                    p("Details of the selected points"),

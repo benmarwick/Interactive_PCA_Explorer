@@ -27,7 +27,7 @@ options(shiny.maxRequestSize = 1024 * 1024 ^ 2)
 options(shiny.reactlog = TRUE)
 
 server <- function(input, output) {
-  data_validated <<- 0
+  data_validated <- 0
   
   # initialize the output validated flag to 0
   output$validated <- reactive({
@@ -37,7 +37,7 @@ server <- function(input, output) {
   # read in the CSV
   # this is reactive and should only change if the CSV file is changed
   the_data_fn <- reactive({
-    data_validated <<- 0
+    data_validated <- 0
     inFile <- input$count_file
     if (is.null(inFile))
       return(NULL)
@@ -60,7 +60,7 @@ server <- function(input, output) {
   })
   
   the_metadata_fn <- reactive({
-    data_validated <<- 0
+    data_validated <- 0
     inFile <- input$metadata_file
     if (is.null(inFile))
       return(NULL)
@@ -310,6 +310,20 @@ server <- function(input, output) {
     
   })
   
+  # output a numeric control with the range of the PCs
+  # for selecting in the scree plot
+  output$pc_range <- renderUI({
+    pca_output <- pca_objects()$pca_output$x
+    
+    numericInput("pc_range",
+                 "Number of PCs to plot",
+                 value=10,
+                 min = 1,
+                 max = length(pca_output[,1]),
+                 width= '100px')  
+    
+  })
+  
   output$the_pcs_to_plot_x <- renderUI({
     pca_output <- pca_objects()$pca_output$x
     
@@ -345,6 +359,14 @@ server <- function(input, output) {
     eig_df <- data.frame(eig = eig,
                          PCs = colnames(pca_output$x),
                          cumvar =  cumvar)
+    
+    num_PCS_to_plot = input$pc_range
+    
+    # limit to 10 PCs
+    eig_df <- eig_df[1:num_PCS_to_plot,]
+    eig <- eig[1:num_PCS_to_plot]
+    cumvar <- cumvar[1:num_PCS_to_plot]
+    
     ggplot(eig_df, aes(reorder(PCs,-eig), eig)) +
       geom_bar(stat = "identity",
                fill = "white",
@@ -439,7 +461,7 @@ server <- function(input, output) {
   # This is the main PCA biplot
   # TODO: determine how to to make the zoom/reset work in this plot instead of dividing the functionality
   #       between two plots
-  output$z_plot1 <- renderPlot({
+  output$PCA_PLOT <- renderPlot({
     # brush <- input$z_plot1Brush
     #
     # if (is.null(brush)) {
@@ -452,8 +474,8 @@ server <- function(input, output) {
   
   # This is the zoomed in plot
   # for zooming
-  output$z_plot2 <- renderPlot({
-    brush <- input$z_plot1Brush
+  output$ZOOMED_PLOT <- renderPlot({
+    brush <- input$PCA_PLOTBrush
     
     if (is.null(brush)) {
       pca_biplot()
@@ -471,9 +493,9 @@ server <- function(input, output) {
     the_metadata_subset <- pca_objects()$the_metadata
     metadata_cols <- names(the_metadata_subset)
     the_pca_data <-
-      brushedPoints(pca_objects()$pcs_df, input$z_plot2Brush)
+      brushedPoints(pca_objects()$pcs_df, input$ZOOMED_PLOTBrush)
     # now return only the columns from the pca data tha match the metadata colnames
-    the_pca_data[, metadata_cols]
+    data.frame(sample=rownames(the_pca_data),the_pca_data[, metadata_cols])
     
   })
   
@@ -559,7 +581,7 @@ server <- function(input, output) {
     }
     
     #TODO:  if we get here, set the data_validated variable to 1
-    data_validated <<- 1
+    data_validated <- 1
     
     validationModal(msg = "Input looks good!", title = "Validation passed!")
     
