@@ -1,9 +1,8 @@
 # global items
 
+#TODO: remove 'validate input' button and just run validation when needed
 #TODO: allow to change shape of points - see here: https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 
-# check if pkgs are installed already, if not, install automatically:
-# (http://stackoverflow.com/a/4090208/1036500)
 list.of.packages <- c("ggplot2",
                       "DT",
                       "GGally",
@@ -82,9 +81,80 @@ server <- function(input, output) {
   })
   
   # combine the data & metadata for PCA visualization
+  # and validate that data are good
   combined_data_fn <- function() {
+    
     the_data <- the_data_fn()
+    
+    num_rows <- length(the_data[, 1])
+    num_cols <- length(the_data)
+    
+    # check if it is small
+    if (num_cols < 3) {
+      validationModal(
+        msg = paste(
+          "Count dataset seems small with ",
+          num_rows,
+          " rows and ",
+          num_cols,
+          " columns. Check that it is formatted correctly and the proper delimiter was selected and try again.  See the README for more information on the format."
+        )
+      )
+      return(-1)
+    }
+    
+    # now load the metadata
     the_metadata <- the_metadata_fn()
+    
+    num_rows <- length(the_metadata[, 1])
+    num_cols <- length(the_metadata)
+    
+    # check if it is small
+    if (num_cols < 2) {
+      validationModal(
+        msg = paste(
+          "Metadata dataset seems small with ",
+          num_rows,
+          " rows and ",
+          num_cols,
+          " columns. Check that it is formatted correctly and the proper delimiter was selected and try again.  See the README for more information on the format."
+        )
+      )
+      return(-1)
+    }
+    
+    # check that all samples from the count data are present in the metadata and vice versa
+    metadata_names <- rownames(the_metadata)
+    countdata_names <- rownames(the_data)
+    
+    countdata_missing_from_metadata <-
+      countdata_names[!(countdata_names %in% metadata_names)]
+    metadata_missing_from_countdata <-
+      metadata_names[!(metadata_names %in% countdata_names)]
+    
+    if (length(countdata_missing_from_metadata) > 0) {
+      missing_names_string = paste(countdata_missing_from_metadata, sep = ",")
+      validationModal(
+        msg = paste(
+          "Some sample names from the count data are missing from the metadata:\n",
+          missing_names_string,
+          sep = ""
+        )
+      )
+      return(-1)
+    }
+    
+    if (length(metadata_missing_from_countdata) > 0) {
+      missing_names_string = paste(metadata_missing_from_countdata, sep = ",")
+      validationModal(
+        msg = paste(
+          "Some sample names from the metadata are missing from the countdata:\n",
+          missing_names_string,
+          sep = ""
+        )
+      )
+      return(-1)
+    }
     
     # now combine them according to the row / column names
     all_data <- merge(the_data, the_metadata, by = "row.names")
@@ -199,9 +269,9 @@ server <- function(input, output) {
   
   # Check boxes to choose columns
   output$choose_samples_pca <- renderUI({
-    the_data <- the_data_fn()
+    all_the_data <- combined_data_fn()
     
-    samplenames <- rownames(the_data)
+    samplenames <- rownames(all_the_data)
     
     # Create the checkboxes and select them all by default
     checkboxGroupInput("samples",
@@ -348,10 +418,7 @@ server <- function(input, output) {
     )
   })
   
-  
-  # TODO: make this only output up to 10 PCs
-  # TODO: add control for how many PCs to display
-  output$plot2 <- renderPlot({
+  output$SCREE_PLOT <- renderPlot({
     pca_output <- pca_objects()$pca_output
     eig = (pca_output$sdev) ^ 2
     variance <- eig * 100 / sum(eig)

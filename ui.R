@@ -13,7 +13,6 @@ ui <- fluidPage(
                       must include the sample names that match the sample names from the count matrix file. Examples below are taken from ",
                      a("GSE81741.", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE81741")
                      ),
-                   p("After count and metadata files are selected, click the 'Validate' button before continuing to the remaining tabs."),
                    p("Before uploading your data, check that it is clean, especially ensure that
                      the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
                    p("Rows that contain one or more NAs will be excluded from the PCA."),
@@ -83,10 +82,7 @@ ui <- fluidPage(
                                 "\"'")
                   ) # end column 2
                   ) # end fluidRow
-                   ), # end conditionalPanel
-                  fluidRow(column(2,
-                          actionButton('validateButton',
-                                       'Validate Input')))
+                   ) # end conditionalPanel
                  ), # end file  tab
           
           tabPanel("Parameters",
@@ -122,11 +118,10 @@ ui <- fluidPage(
           tabPanel("Plots",
                    h2("Scree plot"),
                    p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
-                   plotOutput("plot2", height = "300px"),
+                   plotOutput("SCREE_PLOT", height = "300px"),
                    uiOutput("pc_range"),
                    tags$hr(),
                    h2("PC plot: zoom and select points"),
-                   #p("Only variables where the number of unique values is less than 10% of the total number of observations are shown here (because seeing groups with 1-2 observations is usually not very useful)."),
                    p("Click and drag on the first plot below to zoom into a region on the plot. Or you can go directly to the second plot below to select points to get more information about them."),
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
@@ -166,14 +161,15 @@ ui <- fluidPage(
                    p("Output of the PCA function"),
                    verbatimTextOutput("pca_details"),
                    tags$hr()
-                   # TODO: determine which of the following outputs are problematic
-                   # p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
+                   # TODO: enabling either of the below functions crashes the server.
+                   #       Remove or determine which of the following outputs are problematic
+                   #p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
+                   #tags$hr(),
+                   #p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
+                   #verbatimTextOutput("bartlett")
                    # tags$hr(),
-                   # p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
-                   # verbatimTextOutput("bartlett"),
-                   # tags$hr(),
-                   # p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
-                   # verbatimTextOutput("kmo")
+                   #p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
+                   #verbatimTextOutput("kmo")
                    
           ), # end  tab          
           
