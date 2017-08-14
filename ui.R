@@ -86,15 +86,7 @@ ui <- fluidPage(
                  ), # end file  tab
           
           tabPanel("Parameters",
-                   # commenting out the conditional portion; fix this
-                    #verbatimTextOutput("validated"),
-                    #conditionalPanel(
-                    #  condition = "output.validated == '0'",
-                    #  p("The input datasets have not yet been validated.  Please return to the 'Input' tab and try again")
-                    #),
-                    #conditionalPanel(
-                    #  condition = "output.validated == '1'",
-                   fluidRow(column(6,
+                  fluidRow(column(6,
                    p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
                    checkboxInput(inputId = 'center',
                                  label = 'Shift variables to be zero-centered',
@@ -112,7 +104,6 @@ ui <- fluidPage(
                p("The PCA is automatically re-computed each time you change your selection."),
                uiOutput("choose_samples_pca")
                    ))
-                   #)
           ), # end  tab
 
           tabPanel("Plots",
@@ -179,7 +170,8 @@ ui <- fluidPage(
                    p("The text is licensed ", a("CC-BY", href = "http://creativecommons.org/licenses/by/4.0/"), " and the code ", a(href = "https://opensource.org/licenses/GPL-3.0", "GPL-3.0"), ".")
                    
                    
-          ) # end  tab 
-          
-          
-          ))) 
+          ), # end  tab 
+          id="mainTabPanel",
+          selected="Input"
+          )# end tabsetPanel
+    )) 

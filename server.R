@@ -9,7 +9,8 @@ list.of.packages <- c("ggplot2",
                       "psych",
                       "Hmisc",
                       "MASS",
-                      "tabplot")
+                      "tabplot",
+                      "DESeq2")
 
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
@@ -25,7 +26,7 @@ lapply(list.of.packages, library, character.only = TRUE)
 options(shiny.maxRequestSize = 1024 * 1024 ^ 2)
 options(shiny.reactlog = TRUE)
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   data_validated <- 0
   
   # initialize the output validated flag to 0
@@ -656,16 +657,22 @@ server <- function(input, output) {
   
   validationModal <- function(msg = "", title = "Validation failed") {
     showModal(modalDialog(p(msg),
-                          title = title))
+                          title = title,
+                          footer = tagList(
+                            modalButton("Dismiss"),
+                            actionButton("returnToInput", "Return To Input Tab")
+                          )))
     
   }
   
-  
-  # reset the zoom when the reset zoom button is presed
-  observeEvent(input$resetZoomButton, {
-    #TODO: fill this out
+  # code to return to the input tab when validation fails
+  observeEvent(
+    input$returnToInput,
+    {
+      updateTabsetPanel(session, "mainTabPanel", selected="Input")
+      removeModal(session)
+    }
     
-  })
-  
+  )
   
 }
