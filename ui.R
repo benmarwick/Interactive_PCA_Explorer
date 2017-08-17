@@ -108,7 +108,7 @@ ui <- fluidPage(
 
           tabPanel("Plots",
                    h2("Scree plot"),
-                   p("The scree plot shows the variances of each PC, and the cumulative variance explained by each PC (in %) "),
+                   p("The scree plot shows the variances of each PC, and the cumulative variance explained by each successive PC (in %) "),
                    plotOutput("SCREE_PLOT", height = "300px"),
                    uiOutput("pc_range"),
                    tags$hr(),
@@ -117,14 +117,13 @@ ui <- fluidPage(
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
                    fluidRow(column(8,
+                   h3("PCA biplot"),
                    plotOutput ("PCA_PLOT", height = 400,
                                 brush = brushOpts(
                                   id = "PCA_PLOTBrush",
                                   resetOnNew = TRUE))
                    ), column(4,
-                             p("Select the grouping variable."),
                              uiOutput("the_grouping_variable"),
-                             p("Select the PCs to plot"),
                              uiOutput("the_pcs_to_plot_x"),
                              uiOutput("the_pcs_to_plot_y"),
                              checkboxInput(inputId = 'draw_ellipse',
@@ -138,13 +137,12 @@ ui <- fluidPage(
                    )),
                    #tags$hr(),
                    fluidRow(column(8,
-                   #p("Click and drag on the plot below to select points, and inspect the table of selected points below"),
-                  plotOutput("ZOOMED_PLOT", height = 400,
-                            brush = brushOpts(
-                               id = "ZOOMED_PLOTBrush",
-                               resetOnNew = TRUE))
+                   h3("Zoomed biplot"),
+                   p("The selected points in the plots above are zoomed in on this plot and their details are available in the table below."),
+                  plotOutput("ZOOMED_PLOT", height = 400)
                    )),
-                   p("Details of the selected points"),
+                   h3("Zoomed points table"),
+                   p("Details of the points displayed in the zoomed plot above:"),
                   tableOutput("brush_info_after_zoom")
           ), # end  tab 
           

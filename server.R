@@ -530,13 +530,8 @@ server <- function(input, output, session) {
   # TODO: determine how to to make the zoom/reset work in this plot instead of dividing the functionality
   #       between two plots
   output$PCA_PLOT <- renderPlot({
-    # brush <- input$z_plot1Brush
-    #
-    # if (is.null(brush)) {
+
     pca_biplot()
-    # } else {
-    #   pca_biplot() + coord_cartesian(xlim = c(brush$xmin, brush$xmax), ylim = c(brush$ymin, brush$ymax))
-    # }
     
   })
   
@@ -560,8 +555,13 @@ server <- function(input, output, session) {
     # get the pca metadata
     the_metadata_subset <- pca_objects()$the_metadata
     metadata_cols <- names(the_metadata_subset)
-    the_pca_data <-
-      brushedPoints(pca_objects()$pcs_df, input$ZOOMED_PLOTBrush)
+    
+    brush <- input$PCA_PLOTBrush
+    the_pca_data <- pca_objects()$pcs_df
+    if (!is.null(brush)) {
+      the_pca_data <- brushedPoints(the_pca_data, brush)
+    }
+    
     # now return only the columns from the pca data tha match the metadata colnames
     data.frame(sample=rownames(the_pca_data),the_pca_data[, metadata_cols])
     
