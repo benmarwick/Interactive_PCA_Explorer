@@ -1,8 +1,8 @@
 ui <- fluidPage(
   mainPanel(
-    titlePanel("Shiny PCA Maker"),
+    titlePanel("","Shiny PCA Maker"),
         
-        tabsetPanel(
+        navbarPage("",
           
           tabPanel("Input",
                    checkboxInput("input_show_help", label = 'Show help text', value = FALSE),
@@ -17,12 +17,13 @@ ui <- fluidPage(
                      the the numeric variables contain only the digits 0-9 or NA (to indicate missing data)."),
                    p("Rows that contain one or more NAs will be excluded from the PCA."),
                    p("Columns that contain a mixture of numbers and text will not be included in the computation of the PCA results.")
-                   ), # end conditionalPanel
+                   ),# end conditionalPanel
+                   checkboxInput("input_count_addl_options", label = 'Show additional options', value = FALSE),
                    fluidRow(
-                   column(6,
-                   h3('Count Matrix'),
+                   column(6,wellPanel(
+                   h4('Count Matrix'),
                    a("(Count file example)", href= "./GSE81741.counts.tsv"),
-                   fileInput('count_file', 'Choose a file:',
+                   fileInput('count_file', '',
                              accept = c(
                                'text/csv',
                                'text/comma-separated-values',
@@ -32,17 +33,26 @@ ui <- fluidPage(
                                '.tsv'
                              ),
                              placeholder = ""),
+                   conditionalPanel(condition="input.input_count_addl_options==true",
                    radioButtons('count_sep', 'Separator',
                                 c(Tab='\t',
                                   Comma=',',
                                   Semicolon=';'
                                   ),
-                                '\t')
-                   ), # end column 1
-                   column(6,
-                          h3('Metadata'),
+                                '\t'),
+                   radioButtons('count_quote', 'Quotes around strings',
+                                c(
+                                  'Both'="\"'",
+                                  'Double Quote'='"',
+                                  'Single Quote'="'",
+                                  None=''
+                                ),
+                                "\"'"))
+                   )), # end column 1
+                   column(6,wellPanel(
+                          h4('Metadata'),
                           a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
-                          fileInput('metadata_file', 'Choose a file:',
+                          fileInput('metadata_file', '',
                                     accept = c(
                                       'text/csv',
                                       'text/comma-separated-values',
@@ -52,39 +62,24 @@ ui <- fluidPage(
                                       '.tsv'
                                     ),
                                     placeholder = ""),
+                          conditionalPanel(condition="input.input_count_addl_options==true",
                           radioButtons('metadata_sep', 'Separator',
                                        c(Tab='\t',
                                          Comma=',',
                                          Semicolon=';'),
-                                       '\t')
+                                       '\t'),
+                          radioButtons('metadata_quote', 'Quotes around strings',
+                                       c(
+                                         'Both'="\"'",
+                                         'Double Quote'='"',
+                                         'Single Quote'="'",
+                                         None=''
+                                       ),
+                                       "\"'"))
+                   ) # end well panel
                    ) # end column 2
-                   ), # end fluidRow
-                   checkboxInput("input_count_addl_options", label = 'Show additional options', value = FALSE),
-                   conditionalPanel(condition="input.input_count_addl_options==true",
-                   fluidRow(
-                   column(6,
-                   radioButtons('count_quote', 'Quotes around strings',
-                                c(
-                                  'Both'="\"'",
-                                  'Double Quote'='"',
-                                  'Single Quote'="'",
-                                  None=''
-                                ),
-                                "\"'")
-                   ),column(6,
-                   radioButtons('metadata_quote', 'Quotes around strings',
-                                c(
-                                  'Both'="\"'",
-                                  'Double Quote'='"',
-                                  'Single Quote'="'",
-                                  None=''
-                                  ),
-                                "\"'")
-                  ) # end column 2
-                  ) # end fluidRow
-                   ) # end conditionalPanel
-                 ), # end file  tab
-          
+                   ) # end fluidRow
+                  ), # end tab panel
           tabPanel("Parameters",
                   fluidRow(column(6,
                    p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
