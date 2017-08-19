@@ -98,7 +98,12 @@ ui <- fluidPage(
                                 choices = c('None'='NONE',
                                             'Variance Stabilizing Transform (vst)'='vst', 
                                             'Regularized logarithm (rlog) - WARNING: this can take considerable time'='rlog'), 
-                                selected = 'NONE')
+                                selected = 'NONE'),
+                   # NOTE: this is placed on this tab, otherwise each time the slider is moved
+                   # just a little bit, it will cause the plots to recalculate. We can get around
+                   # this if we change to a different type of control
+                   uiOutput('selectNumGenes')
+  
                    ),column(6,
                p("Choose the samples to include in the PCA."),
                p("The PCA is automatically re-computed each time you change your selection."),

@@ -1,6 +1,5 @@
 # global items
 
-#TODO: remove 'validate input' button and just run validation when needed
 #TODO: allow to change shape of points - see here: https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 
 list.of.packages <- c("ggplot2",
@@ -10,7 +9,8 @@ list.of.packages <- c("ggplot2",
                       "Hmisc",
                       "MASS",
                       "tabplot",
-                      "DESeq2")
+                      "DESeq2",
+                      "genefilter")
 
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
@@ -268,6 +268,20 @@ server <- function(input, output, session) {
     
   })
   
+  output$selectNumGenes <- renderUI({
+    
+    the_data <- the_data_fn()
+    
+    max_genes = length(the_data[1,])
+    
+    sliderInput('num_top_genes', 'Use the top X most variable genes',
+                min=100,
+                max=max_genes,
+                step=100,
+                value=min(max_genes))
+  })
+  
+  
   # Check boxes to choose columns
   output$choose_samples_pca <- renderUI({
     all_the_data <- combined_data_fn()
@@ -296,7 +310,7 @@ server <- function(input, output, session) {
     
   })
   
-  
+  # run the PCA an create the necessary data frames
   pca_objects <- reactive({
     withProgress(message = 'PCA calculation in progress',
                  detail = 'This may take a while...',
@@ -318,6 +332,8 @@ server <- function(input, output, session) {
                    
                    # TODO: move this into 'the_data_fn' or somehow allow for normalization to not have to be recalculated each time any of the PCA
                    #       parameters is changed...although maybe it should?
+                   
+                   # subselect the samples
                    the_data_subset <-
                      the_data[which(rownames(the_data) %in% samples),]
                    incProgress(0.1)
@@ -327,6 +343,15 @@ server <- function(input, output, session) {
                      the_data_subset[, !apply(the_data_subset, MARGIN = 2, function(x)
                        max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
                    incProgress(0.1)
+                   
+                   # subselect the genes (either given as a list or as the topX most variable)
+                   rv <- rowVars(t(the_data_subset))
+                   ntop = input$num_top_genes
+                   if (ntop > length(rv)) {
+                     ntop = length(rv)
+                   }
+                   select_genes <- order(rv, decreasing = TRUE)[seq_len(ntop)]
+                   the_data_subset <- the_data_subset[,select_genes]
                    
                    # normalize, if we were requested to do so
                    normalization = input$normalization
