@@ -274,7 +274,7 @@ server <- function(input, output, session) {
     
     max_genes = length(the_data[1,])
     
-    sliderInput('num_top_genes', 'Use the top X most variable genes',
+    sliderInput('num_top_genes', 'Number of genes to use for calculating PCA (sorted by variance)',
                 min=100,
                 max=max_genes,
                 step=100,
@@ -290,7 +290,7 @@ server <- function(input, output, session) {
     
     # Create the checkboxes and select them all by default
     checkboxGroupInput("samples",
-                       "Choose samples",
+                       "Choose samples to include in the PCA:",
                        choices  = samplenames,
                        selected = samplenames)
   })

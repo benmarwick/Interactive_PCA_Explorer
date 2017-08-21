@@ -1,8 +1,7 @@
 ui <- fluidPage(
-  mainPanel(
     titlePanel("","Shiny PCA Maker"),
         
-        navbarPage("",
+        tabsetPanel("",
           
           tabPanel("Input",
                    checkboxInput("input_show_help", label = 'Show help text', value = FALSE),
@@ -20,7 +19,7 @@ ui <- fluidPage(
                    ),# end conditionalPanel
                    checkboxInput("input_count_addl_options", label = 'Show additional options', value = FALSE),
                    fluidRow(
-                   column(6,wellPanel(
+                   column(4,wellPanel(
                    h4('Count Matrix'),
                    a("(Count file example)", href= "./GSE81741.counts.tsv"),
                    fileInput('count_file', '',
@@ -49,7 +48,7 @@ ui <- fluidPage(
                                 ),
                                 "\"'"))
                    )), # end column 1
-                   column(6,wellPanel(
+                   column(4,wellPanel(
                           h4('Metadata'),
                           a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
                           fileInput('metadata_file', '',
@@ -81,64 +80,67 @@ ui <- fluidPage(
                    ) # end fluidRow
                   ), # end tab panel
           tabPanel("Parameters",
-                  fluidRow(column(6,
-                   p("Select options for the PCA computation (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
-                   checkboxInput(inputId = 'center',
+                  fluidRow(column(4,
+                   p("Select options for the PCA (we are using the ", a("prcomp", href = "http://stat.ethz.ch/R-manual/R-patched/library/stats/html/prcomp.html"), "function):"),
+                   wellPanel(
+                     # NOTE: this is placed on this tab, otherwise each time the slider is moved
+                     # just a little bit, it will cause the plots to recalculate. We can get around
+                     # this if we change to a different type of control
+                    uiOutput('selectNumGenes'),
+                    checkboxInput(inputId = 'center',
                                  label = 'Shift variables to be zero-centered',
                                  value = TRUE),
-                   checkboxInput(inputId = 'scale_data',
+                    checkboxInput(inputId = 'scale_data',
                                  label = 'Scale variables to have unit variance',
                                  value = TRUE),
-                   radioButtons('normalization', 'Normalization',
+                    radioButtons('normalization', 'Normalization',
                                 choices = c('None'='NONE',
                                             'Variance Stabilizing Transform (vst)'='vst', 
                                             'Regularized logarithm (rlog) - WARNING: this can take considerable time'='rlog'), 
-                                selected = 'NONE'),
-                   # NOTE: this is placed on this tab, otherwise each time the slider is moved
-                   # just a little bit, it will cause the plots to recalculate. We can get around
-                   # this if we change to a different type of control
-                   uiOutput('selectNumGenes')
-  
+                                selected = 'NONE')
+                   ) # end wellPanel
                    ),column(6,
-               p("Choose the samples to include in the PCA."),
-               p("The PCA is automatically re-computed each time you change your selection."),
-               uiOutput("choose_samples_pca")
+               wellPanel(
+                uiOutput("choose_samples_pca")
+               )
                    ))
           ), # end  tab
 
           tabPanel("Plots",
-                   h2("Scree plot"),
+                   h3("Scree plot"),
                    p("The scree plot shows the variances of each PC, and the cumulative variance explained by each successive PC (in %) "),
-                   plotOutput("SCREE_PLOT", height = "300px"),
-                   uiOutput("pc_range"),
-                   tags$hr(),
-                   h2("PC plot: zoom and select points"),
+                   fluidRow(column(8,
+                     plotOutput("SCREE_PLOT", height = "300px")
+                   ),
+                   column(4,
+                    wellPanel(uiOutput("pc_range"))
+                   )
+                   ),
+                   h3("PC plot: zoom and select points"),
                    p("Click and drag on the first plot below to zoom into a region on the plot. Or you can go directly to the second plot below to select points to get more information about them."),
                    p("Then select points on zoomed plot below to get more information about the points."),
                    p("You can click on the 'Compute PCA' tab at any time to change the variables included in the PCA, and then come back to this tab and the plots will automatically update."),
                    fluidRow(column(8,
-                   h3("PCA biplot"),
                    plotOutput ("PCA_PLOT", height = 400,
                                 brush = brushOpts(
                                   id = "PCA_PLOTBrush",
                                   resetOnNew = TRUE))
-                   ), column(4,
-                             uiOutput("the_grouping_variable"),
-                             uiOutput("the_pcs_to_plot_x"),
-                             uiOutput("the_pcs_to_plot_y"),
-                             checkboxInput(inputId = 'draw_ellipse',
-                                           label = 'Draw ellipse around groups',
-                                           value = TRUE),
-                             checkboxInput(inputId = 'label_points',
-                                           label = 'Use sample labels for data points',
-                                           value = FALSE)
-                             # actionButton('resetZoomButton',
-                             #              'Reset Zoom')
-                   )),
-                   #tags$hr(),
-                   fluidRow(column(8,
+                   ),column(4,
+                   wellPanel(
+                     uiOutput("the_grouping_variable"),
+                     uiOutput("the_pcs_to_plot_x"),
+                     uiOutput("the_pcs_to_plot_y"),
+                     checkboxInput(inputId = 'draw_ellipse',
+                                   label = 'Draw ellipse around groups',
+                                   value = TRUE),
+                     checkboxInput(inputId = 'label_points',
+                                   label = 'Use sample labels for data points',
+                                   value = FALSE)
+                   ))
+                   ), # end row
                    h3("Zoomed biplot"),
                    p("The selected points in the plots above are zoomed in on this plot and their details are available in the table below."),
+                   fluidRow(column(8,
                   plotOutput("ZOOMED_PLOT", height = 400)
                    )),
                    h3("Zoomed points table"),
@@ -148,18 +150,7 @@ ui <- fluidPage(
           
           tabPanel("Output",
                    p("Output of the PCA function"),
-                   verbatimTextOutput("pca_details"),
-                   tags$hr()
-                   # TODO: enabling either of the below functions crashes the server.
-                   #       Remove or determine which of the following outputs are problematic
-                   #p("Among SPSS users, these tests are considered to provide some guidelines on the suitability of the data for a principal components analysis. However, they may be safely ignored in favour of common sense. Variables with zero variance are excluded."),
-                   #tags$hr(),
-                   #p("Here is the output of Bartlett's sphericity test. Bartlett's test of sphericity tests whether the data comes from multivariate normal distribution with zero covariances. If p > 0.05 then PCA may not be very informative"),
-                   #verbatimTextOutput("bartlett")
-                   # tags$hr(),
-                   #p("Here is the output of the Kaiser-Meyer-Olkin (KMO) index test. The overall measure varies between 0 and 1, and values closer to 1 are better. A value of 0.6 is a suggested minimum. "),
-                   #verbatimTextOutput("kmo")
-                   
+                   verbatimTextOutput("pca_details")
           ), # end  tab          
           
           tabPanel("License",
@@ -172,4 +163,4 @@ ui <- fluidPage(
           id="mainTabPanel",
           selected="Input"
           )# end tabsetPanel
-    )) 
+    ) 
