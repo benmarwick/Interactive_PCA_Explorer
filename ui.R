@@ -150,6 +150,7 @@ ui <- fluidPage(
           
           tabPanel("Output",
                    p("Output of the PCA function"),
+                   downloadLink("downloadPCAOutput", "Download PCA output"),
                    verbatimTextOutput("pca_details")
           ), # end  tab          
           

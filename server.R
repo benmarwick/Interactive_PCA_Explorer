@@ -690,6 +690,15 @@ server <- function(input, output, session) {
     
   }
   
+  # download PCA data
+  output$downloadPCAOutput <- downloadHandler(
+    filename = 'PCA_data.tsv',
+    content = function(file) {
+      data = pca_objects()$pca_output$x
+      write.table(data, file, sep="\t")
+    }
+  )
+  
   # code to return to the input tab when validation fails
   observeEvent(
     input$returnToInput,
