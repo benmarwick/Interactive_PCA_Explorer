@@ -136,7 +136,14 @@ ui <- fluidPage(
                      checkboxInput(inputId = 'label_points',
                                    label = 'Use sample labels for data points',
                                    value = FALSE),
-                     uiOutput("choose_samples_display")
+                     checkboxInput(inputId = 'select_display',
+                                   label = 'Show list of samples to display on plot',
+                                   value = FALSE),
+                     conditionalPanel(condition="input.select_display==true",
+                      p("Deselecting samples from the list below will remove them from the plot without recalculating the PCA.
+                        To remove samples from the PCA calculation, deselect them from the 'Parameters' tab"),
+                      uiOutput("choose_samples_display")
+                     )
                    ))
                    ), # end row
                    h3("Zoomed biplot"),

@@ -217,7 +217,7 @@ server <- function(input, output, session) {
     
     # Create the checkboxes and select them all by default
     checkboxGroupInput("samples",
-                       "Choose samples to include in the PCA:",
+                       "Choose samples to include in the PCA calculation:",
                        choices  = samplenames,
                        selected = samplenames)
   })
