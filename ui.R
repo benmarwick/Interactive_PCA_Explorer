@@ -135,7 +135,8 @@ ui <- fluidPage(
                                    value = TRUE),
                      checkboxInput(inputId = 'label_points',
                                    label = 'Use sample labels for data points',
-                                   value = FALSE)
+                                   value = FALSE),
+                     uiOutput("choose_samples_display")
                    ))
                    ), # end row
                    h3("Zoomed biplot"),

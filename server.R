@@ -182,92 +182,6 @@ server <- function(input, output, session) {
     cat(file = stderr(), "past describe")
   })
   
-  output$bartlett <- renderPrint({
-    the_data <- the_data_fn()
-    the_data_num <- na.omit(the_data[, sapply(the_data, is.numeric)])
-    # exclude cols with zero variance
-    the_data_num <-
-      the_data_num[, !apply(the_data_num, MARGIN = 2, function(x)
-        max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-    
-    cortest.bartlett(cor(the_data_num), n = nrow(the_data_num))
-  })
-  
-  output$kmo <- renderPrint({
-    the_data <- the_data_fn()
-    the_data_num <- the_data[, sapply(the_data, is.numeric)]
-    # exclude cols with zero variance
-    the_data_num <-
-      the_data_num[, !apply(the_data_num, MARGIN = 2, function(x)
-        max(x, na.rm = TRUE) == min(x, na.rm = TRUE))]
-    
-    # R <- cor(the_data_num)
-    # KMO(R)
-    
-    # http://www.opensubscriber.com/message/r-help@stat.math.ethz.ch/7315408.html
-    # KMO Kaiser-Meyer-Olkin Measure of Sampling Adequacy
-    kmo = function(data) {
-      library(MASS)
-      X <- cor(as.matrix(data))
-      iX <- ginv(X)
-      S2 <- diag(diag((iX ^ -1)))
-      AIS <-
-        S2 %*% iX %*% S2                      # anti-image covariance matrix
-      IS <-
-        X + AIS - 2 * S2                         # image covariance matrix
-      Dai <- sqrt(diag(diag(AIS)))
-      IR <-
-        ginv(Dai) %*% IS %*% ginv(Dai)         # image correlation matrix
-      AIR <-
-        ginv(Dai) %*% AIS %*% ginv(Dai)       # anti-image correlation matrix
-      a <- apply((AIR - diag(diag(AIR))) ^ 2, 2, sum)
-      AA <- sum(a)
-      b <- apply((X - diag(nrow(X))) ^ 2, 2, sum)
-      BB <- sum(b)
-      MSA <-
-        b / (b + a)                        # indiv. measures of sampling adequacy
-      
-      AIR <-
-        AIR - diag(nrow(AIR)) + diag(MSA)  # Examine the anti-image of the
-      # correlation matrix. That is the
-      # negative of the partial correlations,
-      # partialling out all other variables.
-      
-      kmo <- BB / (AA + BB)                     # overall KMO statistic
-      
-      # Reporting the conclusion
-      if (kmo >= 0.00 && kmo < 0.50) {
-        test <- 'The KMO test yields a degree of common variance
-        unacceptable for FA.'
-      } else if (kmo >= 0.50 && kmo < 0.60) {
-        test <-
-          'The KMO test yields a degree of common variance miserable.'
-      } else if (kmo >= 0.60 && kmo < 0.70) {
-        test <- 'The KMO test yields a degree of common variance mediocre.'
-      } else if (kmo >= 0.70 && kmo < 0.80) {
-        test <- 'The KMO test yields a degree of common variance middling.'
-      } else if (kmo >= 0.80 && kmo < 0.90) {
-        test <-
-          'The KMO test yields a degree of common variance meritorious.'
-      } else {
-        test <-
-          'The KMO test yields a degree of common variance marvelous.'
-      }
-      
-      ans <- list(
-        overall = kmo,
-        report = test,
-        individual = MSA,
-        AIS = AIS,
-        AIR = AIR
-      )
-      return(ans)
-      
-    }    # end of kmo()
-    kmo(na.omit(the_data_num))
-    
-  })
-  
   output$selectNumGenes <- renderUI({
     
     the_data <- the_data_fn()
@@ -281,6 +195,19 @@ server <- function(input, output, session) {
                 value=min(max_genes))
   })
   
+  
+  # Check boxes to choose samples to display on the plot
+  output$choose_samples_display <- renderUI({
+    the_metadata <- pca_objects()$the_metadata
+    
+    samplenames <- rownames(the_metadata)
+    
+    # Create the checkboxes and select them all by default
+    checkboxGroupInput("display_samples",
+                       "Choose samples to display on the plot:",
+                       choices  = samplenames,
+                       selected = samplenames)
+  })
   
   # Check boxes to choose columns
   output$choose_samples_pca <- renderUI({
@@ -477,6 +404,14 @@ server <- function(input, output, session) {
   pca_biplot <- reactive({
     pcs_df <- pca_objects()$pcs_df
     pca_output <-  pca_objects()$pca_output
+    
+    # filter the pca objects for values that should not be plotted
+    display_samples <- input$display_samples
+    if (!is.null(display_samples)) {
+      pcs_df <- pcs_df[which(rownames(pcs_df) %in% display_samples),]
+      pca_output$x <- pca_output$x[which(rownames(pca_output$x) %in% display_samples),]
+      #pca_output$sdev <- pca_output$sdev[which(rownames(pca_output$sdev) %in% display_samples),]
+    }
     
     var_expl_x <-
       round(100 * pca_output$sdev[as.numeric(gsub("[^0-9]", "", input$the_pcs_to_plot_x))] ^
