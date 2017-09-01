@@ -642,4 +642,21 @@ server <- function(input, output, session) {
     
   )
   
+  # get the URL of the count file supplied by the user
+  output$countFileURL <- renderUI({
+         query <- parseQueryString(session$clientData$url_search)
+         
+         cfu <- query$countFileURL
+         if (is.null(cfu)) {
+           cfu <-""
+         }
+         
+         textInput('count_file_url','Count file URL:', value=query$countFileURL, width=600)
+  })
+  
+  
+  
+  
+  
+  
 }

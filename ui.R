@@ -32,6 +32,7 @@ ui <- fluidPage(
                                '.tsv'
                              ),
                              placeholder = ""),
+                   uiOutput(('countFileURL')),
                    conditionalPanel(condition="input.input_count_addl_options==true",
                    radioButtons('count_sep', 'Separator',
                                 c(Tab='\t',
