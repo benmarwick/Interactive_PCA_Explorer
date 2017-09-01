@@ -4,11 +4,9 @@
 
 list.of.packages <- c("ggplot2",
                       "DT",
-                      "GGally",
                       "psych",
                       "Hmisc",
                       "MASS",
-                      "tabplot",
                       "DESeq2",
                       "genefilter")
 
