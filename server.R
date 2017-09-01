@@ -8,7 +8,8 @@ list.of.packages <- c("ggplot2",
                       "Hmisc",
                       "MASS",
                       "DESeq2",
-                      "genefilter")
+                      "genefilter",
+                      "data.table")
 
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
@@ -37,17 +38,42 @@ server <- function(input, output, session) {
   the_data_fn <- reactive({
     data_validated <- 0
     inFile <- input$count_file
-    if (is.null(inFile))
+    inFileURL <- input$count_file_url
+    
+    # prioritize reading from the file box over the URL
+    #TODO: if a file is selected, the URL should disappear
+    
+    # initialize the data to null
+    the_data <- NULL
+    
+    if (!is.null(inFile)) {
+      the_data <- read.csv(
+        inFile$datapath,
+        header = TRUE,
+        sep = input$count_sep,
+        quote = input$count_quote,
+        row.names = 1,
+        stringsAsFactors = TRUE,
+        check.names = FALSE
+      )
+    } else if (!is.null(inFileURL)) {
+      #TODO: set separator parameters
+      # read the data using fread from data.table library
+      temp_data <- fread(inFileURL,
+                         header = TRUE,
+                         data.table=FALSE,
+                         sep = input$count_sep,
+                         stringsAsFactors = TRUE,
+                         check.names = FALSE)
+      # since we can't tell it about row names the first
+      # column will contain the row names; we create a new
+      # data frame from all but the first column, then assign
+      # the row names
+      the_data <- temp_data[,2:length(temp_data)]
+      rownames(the_data) <- temp_data[,1]
+    } else {
       return(NULL)
-    the_data <-   read.csv(
-      inFile$datapath,
-      header = TRUE,
-      sep = input$count_sep,
-      quote = input$count_quote,
-      row.names = 1,
-      stringsAsFactors = TRUE,
-      check.names = FALSE
-    )
+    }
     
     # transform the data so that the rows are samples and columns are genes
     the_data <- as.data.frame(t(the_data))
@@ -60,17 +86,30 @@ server <- function(input, output, session) {
   the_metadata_fn <- reactive({
     data_validated <- 0
     inFile <- input$metadata_file
-    if (is.null(inFile))
+    inFileURL <- input$metadata_file_url
+    the_metadata <- NULL
+    if (!is.null(inFile)) {
+      the_metadata <-   read.csv(
+        inFile$datapath,
+        header = TRUE,
+        sep = input$metadata_sep,
+        quote = input$metadata_quote,
+        row.names = 1,
+        stringsAsFactors = TRUE,
+        check.names = FALSE
+      )
+    } else if (!is.null(inFileURL)) {
+      temp_data <- fread(inFileURL,
+                         header = TRUE,
+                         data.table=FALSE,
+                         sep = input$metadata_sep,
+                         stringsAsFactors = TRUE,
+                         check.names = FALSE)
+      the_metadata <- temp_data[,2:length(temp_data)]
+      rownames(the_metadata) <- temp_data[,1]      
+    } else {
       return(NULL)
-    the_metadata <-   read.csv(
-      inFile$datapath,
-      header = TRUE,
-      sep = input$metadata_sep,
-      quote = input$metadata_quote,
-      row.names = 1,
-      stringsAsFactors = TRUE,
-      check.names = FALSE
-    )
+    }
     # sort the colData by row names for good measure
     the_metadata <- the_metadata[order(row.names(the_metadata)), ]
     # make each column a factor
@@ -647,14 +686,17 @@ server <- function(input, output, session) {
          query <- parseQueryString(session$clientData$url_search)
          
          cfu <- query$countFileURL
-         if (is.null(cfu)) {
-           cfu <-""
-         }
          
          textInput('count_file_url','Count file URL:', value=query$countFileURL, width=600)
   })
   
-  
+  output$metadataFileURL <- renderUI({
+    query <- parseQueryString(session$clientData$url_search)
+    
+    cfu <- query$metadataFileURL
+    
+    textInput('metadata_file_url','Metadata file URL:', value=query$metadataFileURL, width=600)
+  })
   
   
   

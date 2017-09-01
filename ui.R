@@ -62,6 +62,7 @@ ui <- fluidPage(
                                       '.tsv'
                                     ),
                                     placeholder = ""),
+                          uiOutput(('metadataFileURL')),
                           conditionalPanel(condition="input.input_count_addl_options==true",
                           radioButtons('metadata_sep', 'Separator',
                                        c(Tab='\t',
