@@ -1,7 +1,7 @@
 ui <- fluidPage(
     titlePanel("","Shiny PCA Maker"),
         
-        tabsetPanel("",
+        tabsetPanel(
           
           tabPanel("Input",
                    checkboxInput("input_show_help", label = 'Show help text', value = FALSE),

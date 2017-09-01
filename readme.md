@@ -21,6 +21,17 @@ runGitHub("shiny-pca-maker", "LJI-Bioinformatics", launch.browser = TRUE)
 
 ### Running locally
 
+#### Dependency installation
+
+If running from Github or locally with R/RStudio, you can install the dependencies with
+the following commands:
+
+```
+install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot'))
+source("https://bioconductor.org/biocLite.R")
+biocLite('DESeq2')
+```
+
 There are multiple ways to run locally, including with Docker or directly in R/RStudio.  Both require you to clone the git repository to your machine:
 
 ```
@@ -61,17 +72,6 @@ To run this app directly from your R/RStudio installation, first ensure that dep
 ```
 setwd("~/Shiny-PCA-Maker")
 runApp(launch.browser = TRUE) 
-```
-
-### Dependency installation
-
-If running from Github or locally with R/RStudio, you can install the dependencies with
-the following commands:
-
-```
-install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot'))
-source("https://bioconductor.org/biocLite.R")
-biocLite('DESeq2')
 ```
 
 ## How to use
