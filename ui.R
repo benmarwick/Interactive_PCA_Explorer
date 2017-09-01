@@ -6,7 +6,7 @@ ui <- fluidPage(
           tabPanel("Input",
                    checkboxInput("input_show_help", label = 'Show help text', value = FALSE),
                    conditionalPanel(condition="input.input_show_help==true",
-                   p("Count matrix and metadata must be uploaded separately.  Count matrices will have rows as genes (or some other feature),
+                   p("Count matrix and metadata must be uploaded separately and can be supplied by browsing your filesystem or via a URL.  Count matrices will have rows as genes (or some other feature),
                       and columns as samples. The values of the cells are the 'counts' or some other measure of expression, which can be provided as raw or normalized.
                       Metadata files are provided with columns as conditions/phenotypes/other and rows as samples.  The first column
                       must include the sample names that match the sample names from the count matrix file. Examples below are taken from ",
