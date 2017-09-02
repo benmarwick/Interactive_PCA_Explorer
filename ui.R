@@ -23,7 +23,7 @@ ui <- fluidPage(
                    h4('Count Matrix'),
                    a("(Count file example)", href= "./GSE81741.counts.tsv"),
                    radioButtons('count_file_method',
-                                "Input method",
+                                "",
                                 selected = 'upload',
                                 inline = FALSE,
                                 choiceNames = c('Upload from computer','Download from web'),
@@ -62,6 +62,13 @@ ui <- fluidPage(
                    column(4,wellPanel(
                           h4('Metadata'),
                           a("(Metadata file example)", href= "./GSE81741.metadata.tsv"),
+                          radioButtons('metadata_file_method',
+                                       "",
+                                       selected = 'upload',
+                                       inline = FALSE,
+                                       choiceNames = c('Upload from computer','Download from web'),
+                                       choiceValues = c('upload','download')),
+                          conditionalPanel(condition="input.metadata_file_method=='upload'",
                           fileInput('metadata_file', '',
                                     accept = c(
                                       'text/csv',
@@ -71,8 +78,11 @@ ui <- fluidPage(
                                       '.csv',
                                       '.tsv'
                                     ),
-                                    placeholder = ""),
-                          uiOutput(('metadataFileURL')),
+                                    placeholder = "")
+                          ),
+                          conditionalPanel(condition="input.metadata_file_method=='download'",
+                          uiOutput('metadataFileURL')
+                          ),
                           conditionalPanel(condition="input.input_count_addl_options==true",
                           radioButtons('metadata_sep', 'Separator',
                                        c(Tab='\t',

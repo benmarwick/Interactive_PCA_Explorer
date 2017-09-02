@@ -687,15 +687,21 @@ server <- function(input, output, session) {
          
          cfu <- query$countFileURL
          
-         textInput('count_file_url','Count file URL:', value=query$countFileURL, width=600)
-  })
+         if(!is.null(cfu)) {
+          updateRadioButtons(session, 'count_file_method', selected = 'download')
+         }
+         textInput('count_file_url','Count file URL:', value=cfu, width=600)
+         
+    })
   
   output$metadataFileURL <- renderUI({
     query <- parseQueryString(session$clientData$url_search)
     
-    cfu <- query$metadataFileURL
-    
-    textInput('metadata_file_url','Metadata file URL:', value=query$metadataFileURL, width=600)
+    mfu <- query$metadataFileURL
+    if(!is.null(mfu)) {
+      updateRadioButtons(session, 'metadata_file_method', selected = 'download')
+    }
+    textInput('metadata_file_url','Metadata file URL:', value=mfu, width=600)
   })
   
   
