@@ -22,6 +22,13 @@ ui <- fluidPage(
                    column(4,wellPanel(
                    h4('Count Matrix'),
                    a("(Count file example)", href= "./GSE81741.counts.tsv"),
+                   radioButtons('count_file_method',
+                                "Input method",
+                                selected = 'upload',
+                                inline = FALSE,
+                                choiceNames = c('Upload from computer','Download from web'),
+                                choiceValues = c('upload','download')),
+                   conditionalPanel(condition="input.count_file_method=='upload'",
                    fileInput('count_file', '',
                              accept = c(
                                'text/csv',
@@ -31,8 +38,11 @@ ui <- fluidPage(
                                '.csv',
                                '.tsv'
                              ),
-                             placeholder = ""),
-                   uiOutput(('countFileURL')),
+                             placeholder = "")
+                   ),
+                   conditionalPanel(condition="input.count_file_method=='download'",
+                    uiOutput('countFileURL')
+                   ),
                    conditionalPanel(condition="input.input_count_addl_options==true",
                    radioButtons('count_sep', 'Separator',
                                 c(Tab='\t',
