@@ -39,6 +39,7 @@ server <- function(input, output, session) {
     data_validated <- 0
     inFile <- input$count_file
     inFileURL <- input$count_file_url
+    inMethod <- input$count_file_method
     
     # prioritize reading from the file box over the URL
     #TODO: if a file is selected, the URL should disappear
@@ -46,7 +47,7 @@ server <- function(input, output, session) {
     # initialize the data to null
     the_data <- NULL
     
-    if (!is.null(inFile)) {
+    if (inMethod == 'upload' & !is.null(inFile)) {
       the_data <- read.csv(
         inFile$datapath,
         header = TRUE,
@@ -56,7 +57,7 @@ server <- function(input, output, session) {
         stringsAsFactors = TRUE,
         check.names = FALSE
       )
-    } else if (!is.null(inFileURL)) {
+    } else if (inMethod == 'download' & !is.null(inFileURL)) {
       #TODO: set separator parameters
       # read the data using fread from data.table library
       temp_data <- fread(inFileURL,
@@ -87,8 +88,9 @@ server <- function(input, output, session) {
     data_validated <- 0
     inFile <- input$metadata_file
     inFileURL <- input$metadata_file_url
+    inMethod <- input$metadata_file_method
     the_metadata <- NULL
-    if (!is.null(inFile)) {
+    if (inMethod == 'upload' & !is.null(inFile)) {
       the_metadata <-   read.csv(
         inFile$datapath,
         header = TRUE,
@@ -98,7 +100,7 @@ server <- function(input, output, session) {
         stringsAsFactors = TRUE,
         check.names = FALSE
       )
-    } else if (!is.null(inFileURL)) {
+    } else if (inMethod == 'download' & !is.null(inFileURL)) {
       temp_data <- fread(inFileURL,
                          header = TRUE,
                          data.table=FALSE,
