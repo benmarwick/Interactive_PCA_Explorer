@@ -666,9 +666,18 @@ server <- function(input, output, session) {
   
   # download PCA data
   output$downloadPCAOutput <- downloadHandler(
-    filename = 'PCA_data.tsv',
+    filename = 'PCA_sample_coefficients.tsv',
     content = function(file) {
       data = pca_objects()$pca_output$x
+      write.table(data, file, sep="\t")
+    }
+  )
+  
+  # download PCA data
+  output$downloadPCARotation <- downloadHandler(
+    filename = 'PCA_gene_loadings.tsv',
+    content = function(file) {
+      data = pca_objects()$pca_output$rotation
       write.table(data, file, sep="\t")
     }
   )

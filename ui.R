@@ -179,8 +179,11 @@ ui <- fluidPage(
           ), # end  tab 
           
           tabPanel("Output",
-                   p("Output of the PCA function"),
-                   downloadLink("downloadPCAOutput", "Download PCA output"),
+                   
+                   downloadLink("downloadPCAOutput", "Download PCA output (sample coefficients)"),
+                   br(),
+                   downloadLink("downloadPCARotation", "Download PCA rotation (gene loadings)"),
+                   p("Output of the PCA function:"),
                    verbatimTextOutput("pca_details")
           ), # end  tab          
           
