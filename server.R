@@ -112,8 +112,19 @@ server <- function(input, output, session) {
     } else {
       return(NULL)
     }
+    
+    # append a column to the end of the_metadata that will be remove after sorting
+    # this is necessary form metadata files with only 1 column since the ordering function
+    # will return a vector instead of a data frame in these cases
+    # TODO: find a more elegant way of dealing with this
+    cnames <- colnames(the_metadata)
+    num_cols <- ncol(the_metadata)
+    the_metadata_plus <- data.frame(the_metadata, the_metadata[,1])
     # sort the colData by row names for good measure
-    the_metadata <- the_metadata[order(row.names(the_metadata)), ]
+    the_metadata_plus <- the_metadata_plus[order(row.names(the_metadata_plus)), ]
+    # now remove the last column
+    the_metadata <- the_metadata_plus[1:num_cols]
+    
     # make each column a factor
     the_metadata[1:length(the_metadata)] <-
       as.data.frame(lapply(the_metadata, factor))
@@ -150,7 +161,7 @@ server <- function(input, output, session) {
     num_cols <- length(the_metadata)
     
     # check if it is small
-    if (num_cols < 2) {
+    if (num_cols < 1) {
       validationModal(
         msg = paste(
           "Metadata dataset seems small with ",
