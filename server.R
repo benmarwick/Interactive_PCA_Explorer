@@ -9,7 +9,8 @@ list.of.packages <- c("ggplot2",
                       "MASS",
                       "DESeq2",
                       "genefilter",
-                      "data.table")
+                      "data.table",
+                      "curl")
 
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
