@@ -28,6 +28,18 @@ the following commands:
 
 ```
 install.packages(c('shiny', 'ggplot2', 'DT', 'GGally', 'psych', 'Hmisc', 'MASS', 'tabplot'))
+```
+
+Next, install the DESeq2 package from BioConductor.  For R version >= 3.5:
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install('DESeq2')
+
+```
+
+For R versions < 3.5:
+```
 source("https://bioconductor.org/biocLite.R")
 biocLite('DESeq2')
 ```
@@ -45,6 +57,9 @@ Replace LOCAL_DIR with the directory into which you would like to clone.  For th
 ```
 
 #### Running locally with Docker
+
+** NOTE** The Docker instructions are currently broken as the container image needs to be recreated
+to adapt to modern Docker security policies.
 
 If you have [Docker](https://www.docker.com/) installed, you can start a container to run the server:
 
