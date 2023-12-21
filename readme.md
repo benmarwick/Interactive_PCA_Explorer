@@ -34,7 +34,8 @@ Next, install the DESeq2 package from BioConductor.  For R version >= 3.5:
 ```
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install('DESeq2')
+BiocManager::install('DESeq2', update=FALSE, ask=FALSE)
+BiocManager::install('genefilter', update=FALSE, ask=FALSE)
 
 ```
 
@@ -58,27 +59,25 @@ Replace LOCAL_DIR with the directory into which you would like to clone.  For th
 
 #### Running locally with Docker
 
-** NOTE** The Docker instructions are currently broken as the container image needs to be recreated
-to adapt to modern Docker security policies.
+If you have [Docker](https://www.docker.com/) installed, you can start a container to run the server.
+You can either build it from the dockerfile, or use the prebuilt image available on dockerhub.
 
-If you have [Docker](https://www.docker.com/) installed, you can start a container to run the server:
+To build the image locally and run:
+```
+docker build --platform linux/amd64 --tag shiny_pca_maker .
+docker run -d --platform linux/amd64 -p 3838:3838 shiny_pca_maker
+```
+
+Otherwise, to use the pre-built image:
 
 ```
-cd ~/Shiny-PCA-Maker
-sh docker_start.sh
+docker run -d --platform linux/amd64 -p 3838:3838 jgbaum/shiny_pca_maker
 ```
 
 This will start a server at port 3838, which you can reach from your browser at:
 
 http://localhost:3838
 
-
-To stop the server:
-
-```
-cd ~/Shiny-PCA-Maker
-sh docker_stop.sh
-```
 
 #### Running locally with R/RStudio
 
